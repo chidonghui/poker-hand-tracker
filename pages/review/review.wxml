@@ -1,0 +1,131 @@
+<!--pages/review/review.wxml-->
+<view class="header">
+  <text class="title">手牌复盘</text>
+  <view class="filter-section">
+    <picker mode="date" value="{{selectedDate}}" bindchange="onDateChange">
+      <view class="date-picker">{{displayDate}} ▼</view>
+    </picker>
+  </view>
+</view>
+
+<view class="container">
+  <!-- 统计摘要 -->
+  <view class="summary-card" wx:if="{{hands.length > 0}}">
+    <view class="summary-item">
+      <text class="value">{{hands.length}}</text>
+      <text class="label">总手数</text>
+    </view>
+    <view class="summary-item">
+      <text class="value {{totalAmount >= 0 ? 'win' : 'loss'}}">{{totalAmount >= 0 ? '+' : ''}}{{totalAmount}}</text>
+      <text class="label">实际盈亏</text>
+    </view>
+    <view class="summary-item">
+      <text class="value {{totalEV >= 0 ? 'win' : 'loss'}}">{{totalEV >= 0 ? '+' : ''}}{{totalEV}}</text>
+      <text class="label">EV盈亏</text>
+    </view>
+    <view class="summary-item">
+      <text class="value {{diff >= 0 ? 'win' : 'loss'}}">{{diff >= 0 ? '+' : ''}}{{diff}}</text>
+      <text class="label">差距</text>
+    </view>
+  </view>
+
+  <!-- 排序选项 -->
+  <view class="sort-bar" wx:if="{{hands.length > 0}}">
+    <text class="sort-label">排序:</text>
+    <view class="sort-options">
+      <view class="sort-btn {{sortBy === 'time' ? 'active' : ''}}" bindtap="sortBy" data-field="time">时间</view>
+      <view class="sort-btn {{sortBy === 'amount' ? 'active' : ''}}" bindtap="sortBy" data-field="amount">实际盈亏</view>
+      <view class="sort-btn {{sortBy === 'ev' ? 'active' : ''}}" bindtap="sortBy" data-field="ev">EV</view>
+    </view>
+    <view class="order-btn" bindtap="toggleOrder">{{sortOrder === 'desc' ? '↓' : '↑'}}</view>
+  </view>
+
+  <!-- 手牌列表 -->
+  <view class="hand-list">
+    <view class="hand-item {{item.reviewed ? 'reviewed' : ''}}" 
+          wx:for="{{hands}}" wx:key="id"
+          bindtap="viewHandDetail" data-id="{{item.id}}">
+      
+      <!-- 扑克牌展示区域 -->
+      <view class="cards-area">
+        <!-- 手牌 -->
+        <view class="hand-cards">
+          <view class="poker-card mini {{card.suit === 'H' || card.suit === 'D' ? 'red' : 'black'}}" 
+                wx:for="{{item.cards}}" wx:for-item="card" wx:key="index">
+            <text class="card-rank">{{card.rank}}</text>
+            <text class="card-suit suit-{{card.suitName}}"></text>
+          </view>
+        </view>
+        
+        <!-- 公共牌 -->
+        <view class="community-cards" wx:if="{{item.communityCards}}">
+          <!-- Flop -->
+          <view class="street flop" wx:if="{{item.communityCards.flop}}">
+            <text class="street-label">F</text>
+            <view class="street-cards">
+              <view class="poker-card micro {{card.suit === 'H' || card.suit === 'D' ? 'red' : 'black'}}" 
+                    wx:for="{{item.communityCards.flop}}" wx:for-item="card" wx:key="index">
+                <text class="card-rank">{{card.rank}}</text>
+              </view>
+            </view>
+          </view>
+          
+          <!-- Turn -->
+          <view class="street turn" wx:if="{{item.communityCards.turn}}">
+            <text class="street-label">T</text>
+            <view class="poker-card micro {{item.communityCards.turn.suit === 'H' || item.communityCards.turn.suit === 'D' ? 'red' : 'black'}}">
+              <text class="card-rank">{{item.communityCards.turn.rank}}</text>
+            </view>
+          </view>
+          
+          <!-- River -->
+          <view class="street river" wx:if="{{item.communityCards.river}}">
+            <text class="street-label">R</text>
+            <view class="poker-card micro {{item.communityCards.river.suit === 'H' || item.communityCards.river.suit === 'D' ? 'red' : 'black'}}">
+              <text class="card-rank">{{item.communityCards.river.rank}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 手牌信息 -->
+      <view class="hand-info">
+        <text class="hand-name">{{item.handName}}</text>
+        <view class="tags" wx:if="{{item.position || item.action}}">
+          <text class="tag" wx:if="{{item.position}}">{{item.position}}</text>
+          <text class="tag action">{{item.action}}</text>
+        </view>
+      </view>
+      
+      <!-- 盈亏显示 -->
+      <view class="profit-section">
+        <view class="amount-row">
+          <text class="label">实际:</text>
+          <text class="amount {{item.amount >= 0 ? 'win' : 'loss'}}">{{item.amount >= 0 ? '+' : ''}}{{item.amount}}</text>
+        </view>
+        
+        <view class="amount-row" wx:if="{{item.ev !== null && item.ev !== undefined}}">
+          <text class="label">EV:</text>
+          <text class="amount {{item.ev >= 0 ? 'win' : 'loss'}}">{{item.ev >= 0 ? '+' : ''}}{{item.ev}}</text>
+        </view>
+        
+        <view class="diff-row" wx:if="{{item.ev !== null && item.ev !== undefined}}">
+          <text class="diff {{(item.amount - item.ev) >= 0 ? 'win' : 'loss'}}">
+            差: {{(item.amount - item.ev) >= 0 ? '+' : ''}}{{(item.amount - item.ev).toFixed(0)}}
+          </text>
+        </view>
+      </view>
+      
+      <!-- 未复盘标记 -->
+      <view class="review-badge" wx:if="{{!item.reviewed}}">待复盘</view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{hands.length === 0}}">
+    <text class="empty-icon">🃏</text>
+    <text class="empty-title">暂无手牌记录</text>
+    <text class="empty-desc">去记录页面添加今日手牌吧</text>
+    <button class="go-record-btn" bindtap="goToRecord">去记录</button>
+  </view>
+</view>

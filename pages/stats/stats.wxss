@@ -1,0 +1,177 @@
+/**pages/stats/stats.wxss**/
+page {
+  background: var(--bg);
+}
+
+.header {
+  background: var(--card-bg);
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1rpx solid var(--surface);
+}
+
+.title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.time-filter {
+  display: flex;
+  background: var(--surface);
+  border-radius: 30rpx;
+  padding: 6rpx;
+}
+
+.filter-btn {
+  padding: 12rpx 30rpx;
+  border-radius: 24rpx;
+  font-size: 26rpx;
+  color: var(--text-secondary);
+}
+
+.filter-btn.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* 总览卡片 */
+.summary-card {
+  background: var(--card-bg);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin: 20rpx 0;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 30rpx;
+}
+
+.summary-row:last-child {
+  margin-bottom: 0;
+}
+
+.summary-item {
+  text-align: center;
+  flex: 1;
+}
+
+.summary-item .value {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 700;
+  margin-bottom: 8rpx;
+}
+
+.summary-item .label {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+/* 统计区块 */
+.stats-section {
+  background: var(--card-bg);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 20rpx;
+}
+
+.hand-list {
+  padding: 0 10rpx;
+}
+
+.hand-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid var(--surface);
+}
+
+.hand-item:last-child {
+  border-bottom: none;
+}
+
+.hand-name {
+  font-size: 28rpx;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.amount {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+/* 位置统计 */
+.position-list {
+  padding: 0 10rpx;
+}
+
+.position-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid var(--surface);
+}
+
+.position-name {
+  font-size: 28rpx;
+  color: var(--text-primary);
+  font-weight: 600;
+  background: var(--surface);
+  padding: 8rpx 20rpx;
+  border-radius: 8rpx;
+}
+
+.position-data {
+  display: flex;
+  gap: 30rpx;
+  align-items: center;
+}
+
+.hands {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+.position-data .amount {
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 100rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.empty-title {
+  font-size: 32rpx;
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.empty-desc {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+}

@@ -1,0 +1,319 @@
+/**pages/review/review.wxss**/
+page {
+  background: var(--bg);
+}
+
+.header {
+  background: var(--card-bg);
+  padding: 30rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1rpx solid var(--surface);
+}
+
+.title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.filter-section {
+  background: var(--surface);
+  padding: 16rpx 30rpx;
+  border-radius: 30rpx;
+}
+
+.date-picker {
+  font-size: 28rpx;
+  color: var(--primary);
+}
+
+/* 摘要卡片 */
+.summary-card {
+  display: flex;
+  justify-content: space-around;
+  background: var(--card-bg);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin: 20rpx 0;
+}
+
+.summary-item {
+  text-align: center;
+}
+
+.summary-item .value {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8rpx;
+}
+
+.summary-item .label {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+/* 排序栏 */
+.sort-bar {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  margin-bottom: 20rpx;
+}
+
+.sort-label {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  margin-right: 20rpx;
+}
+
+.sort-options {
+  display: flex;
+  gap: 16rpx;
+  flex: 1;
+}
+
+.sort-btn {
+  background: var(--surface);
+  padding: 12rpx 24rpx;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+  color: var(--text-secondary);
+}
+
+.sort-btn.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.order-btn {
+  background: var(--surface);
+  padding: 12rpx 20rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  color: var(--text-primary);
+}
+
+/* 手牌列表 */
+.hand-list {
+  padding-bottom: 40rpx;
+}
+
+.hand-item {
+  background: var(--card-bg);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  position: relative;
+  border-left: 6rpx solid transparent;
+}
+
+.hand-item.reviewed {
+  border-left-color: var(--win);
+}
+
+.hand-item:not(.reviewed) {
+  border-left-color: var(--primary);
+}
+
+/* 扑克牌展示区域 */
+.cards-area {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+/* 手牌 */
+.hand-cards {
+  display: flex;
+  gap: 12rpx;
+}
+
+.poker-card {
+  background: linear-gradient(135deg, #fff 0%, #f5f5f5 100%);
+  border-radius: 12rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.2);
+}
+
+.poker-card.red { color: #e53935; }
+.poker-card.black { color: #212121; }
+
+/* 迷你扑克牌 (手牌) */
+.poker-card.mini {
+  width: 90rpx;
+  height: 130rpx;
+}
+
+.poker-card.mini .card-rank {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.poker-card.mini .card-suit {
+  font-size: 48rpx;
+}
+
+/* 微型扑克牌 (公共牌) */
+.poker-card.micro {
+  width: 50rpx;
+  height: 70rpx;
+}
+
+.poker-card.micro .card-rank {
+  font-size: 22rpx;
+  font-weight: bold;
+}
+
+/* 花色符号 */
+.suit-spade::before { content: "♠"; }
+.suit-heart::before { content: "♥"; }
+.suit-club::before { content: "♣"; }
+.suit-diamond::before { content: "♦"; }
+
+/* 公共牌区域 */
+.community-cards {
+  display: flex;
+  gap: 20rpx;
+  padding: 16rpx;
+  background: rgba(0,0,0,0.2);
+  border-radius: 12rpx;
+}
+
+.street {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.street-label {
+  font-size: 20rpx;
+  color: var(--text-secondary);
+  width: 24rpx;
+}
+
+.street-cards {
+  display: flex;
+  gap: 6rpx;
+}
+
+/* 手牌信息 */
+.hand-info {
+  flex: 1;
+}
+
+.hand-name {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.tags {
+  display: flex;
+  gap: 8rpx;
+}
+
+.tag {
+  background: var(--surface);
+  padding: 4rpx 12rpx;
+  border-radius: 6rpx;
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}
+
+.tag.action {
+  background: rgba(233, 69, 96, 0.2);
+  color: var(--primary);
+}
+
+/* 盈亏显示 */
+.profit-section {
+  display: flex;
+  gap: 24rpx;
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid var(--surface);
+}
+
+.amount-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.amount-row .label {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+.amount {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.diff-row {
+  margin-left: auto;
+}
+
+.diff {
+  font-size: 24rpx;
+}
+
+/* 复盘标记 */
+.review-badge {
+  position: absolute;
+  top: 10rpx;
+  right: 10rpx;
+  background: var(--primary);
+  color: #fff;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  font-size: 20rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 100rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.empty-title {
+  font-size: 32rpx;
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.empty-desc {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 40rpx;
+}
+
+.go-record-btn {
+  background: var(--primary);
+  color: #fff;
+  border-radius: 50rpx;
+  padding: 24rpx 60rpx;
+  font-size: 28rpx;
+}
+
+.go-record-btn::after {
+  border: none;
+}

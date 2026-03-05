@@ -1,0 +1,89 @@
+<!--pages/stats/stats.wxml-->
+<view class="header"
+>
+  <text class="title">数据统计</text>
+  <view class="time-filter"
+003e
+    <view class="filter-btn {{timeRange === 'day' ? 'active' : ''}}" bindtap="setRange" data-range="day">日</view>
+    <view class="filter-btn {{timeRange === 'week' ? 'active' : ''}}" bindtap="setRange" data-range="week">周</view>
+    <view class="filter-btn {{timeRange === 'month' ? 'active' : ''}}" bindtap="setRange" data-range="month">月</view>
+  </view>
+</view>
+
+<view class="container">
+  <!-- 总览卡片 -->
+  <view class="summary-card">
+    <view class="summary-row">
+      <view class="summary-item">
+        <text class="value">{{stats.totalHands}}</text>
+        <text class="label">总手数</text>
+      </view>
+      <view class="summary-item">
+        <text class="value {{stats.totalProfit >= 0 ? 'win' : 'loss'}}">{{stats.totalProfit >= 0 ? '+' : ''}}{{stats.totalProfit}}</text>
+        <text class="label">实际盈亏</text>
+      </view>
+    </view>
+    
+    <view class="summary-row">
+      <view class="summary-item">
+        <text class="value {{stats.totalEV >= 0 ? 'win' : 'loss'}}">{{stats.totalEV >= 0 ? '+' : ''}}{{stats.totalEV}}</text>
+        <text class="label">EV盈亏</text>
+      </view>
+      <view class="summary-item">
+        <text class="value {{stats.evDiff >= 0 ? 'win' : 'loss'}}">{{stats.evDiff >= 0 ? '+' : ''}}{{stats.evDiff}}</text>
+        <text class="label">EV差距</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 手牌分布 -->
+  <view class="stats-section">
+    <view class="section-title">盈利手牌 TOP5</view>
+    
+    <view class="hand-list">
+      <view class="hand-item" wx:for="{{topWinners}}" wx:key="id">
+        <view class="hand-name">{{item.handName}}</text>
+        <text class="amount win">+{{item.amount}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 亏损手牌 -->
+  <view class="stats-section"
+>
+    <view class="section-title">亏损手牌 TOP5</view>
+    
+    <view class="hand-list"
+>
+      <view class="hand-item" wx:for="{{topLosers}}" wx:key="id">
+        <view class="hand-name">{{item.handName}}</text>
+        <text class="amount loss">{{item.amount}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 位置统计 -->
+  <view class="stats-section" wx:if="{{positionStats.length > 0}}">
+    <view class="section-title">位置统计</view>
+    
+    <view class="position-list"
+>
+      <view class="position-item" wx:for="{{positionStats}}" wx:key="position">
+        <text class="position-name">{{item.position}}</text>
+        
+        <view class="position-data">
+          <text class="hands">{{item.hands}}手</text>
+          
+          <text class="amount {{item.profit >= 0 ? 'win' : 'loss'}}">{{item.profit >= 0 ? '+' : ''}}{{item.profit}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{stats.totalHands === 0}}">
+    <text class="empty-icon">📊</text>
+    <text class="empty-title">暂无数据</text>
+    <text class="empty-desc">开始记录手牌后，这里会显示统计分析</text>
+  </view>
+</view>

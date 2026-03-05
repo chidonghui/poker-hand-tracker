@@ -1,0 +1,96 @@
+<!--pages/record/record.wxml-->
+<view class="header">
+  <text class="title">手牌记录</text>
+  <text class="subtitle">{{currentTime}}</text>
+</view>
+
+<view class="container">
+  <!-- 快速输入区 -->
+  <view class="input-section"
+>
+    <view class="input-label"
+003e快速输入</view>
+    
+    <input 
+      class="hand-input" 
+      placeholder="例如: AKs+1500 或 GoK!-500" 
+      value="{{inputValue}}"
+      bindinput="onInput"
+      bindconfirm="onConfirm"
+      focus="{{true}}"
+    />
+    
+    <view class="input-hint">
+      <text class="hint-title">语法说明：</text>
+      <view class="hint-item">• AKs+1500 = AK同花色(suited)赢1500</view>
+      <view class="hint-item">• AKo-500 = AK不同花色(off suit)输500</view>
+      <view class="hint-item">• AsKh = 黑桃A + 红心K</view>
+      <view class="hint-item">• 99 = 口袋对9</view>
+      <view class="hint-item">• 花色: s=黑桃♠️ h=红心❤️ c=梅花♣️ d=方块♦️</view>
+    </view>
+  </view>
+
+  <!-- 预览区 -->
+  <view class="preview-section" wx:if="{{parsedHand.cards.length > 0}}"
+>
+    <view class="section-title">预览</view>
+    
+    <view class="hand-preview"
+>
+      <view class="poker-card {{card.suit === 'H' || card.suit === 'D' ? 'red' : 'black'}}" 
+            wx:for="{{parsedHand.cards}}" wx:key="index"
+>
+        <text class="rank">{{card.rank}}</text>
+        <text class="suit suit-{{card.suitName}}"></text>
+      </view>
+    </view>
+    
+    <view class="hand-info"
+>
+      <text class="hand-name">{{parsedHand.handName}}</text>
+      <text class="amount {{parsedHand.amount >= 0 ? 'win' : 'loss'}}">
+        {{parsedHand.amount >= 0 ? '+' : ''}}{{parsedHand.amount}}
+      </text>
+    </view>
+  </view>
+
+  <!-- 快捷按钮 -->
+  <view class="quick-buttons"
+>
+    <view class="btn-row"
+>
+      <view class="quick-btn" bindtap="quickInput" data-text="AKs">AKs</view>
+      <view class="quick-btn" bindtap="quickInput" data-text="AKo">AKo</view>
+      <view class="quick-btn" bindtap="quickInput" data-text="AQs">AQs</view>
+      <view class="quick-btn" bindtap="quickInput" data-text="JTs">JTs</view>
+    </view>
+    
+    <view class="btn-row"
+>
+      <view class="quick-btn" bindtap="quickInput" data-text="GoK!">GoK!</view>
+      <view class="quick-btn" bindtap="quickInput" data-text="QQ">QQ</view>
+      <view class="quick-btn" bindtap="quickInput" data-text="JJ">JJ</view>
+      <view class="quick-btn" bindtap="quickInput" data-text="TT">TT</view>
+    </view>
+    
+    <view class="btn-row"
+>
+      <view class="quick-btn amount-btn" bindtap="quickInput" data-text="+">+</view>
+      <view class="quick-btn amount-btn" bindtap="quickInput" data-text="-">-</view>
+      <view class="quick-btn" bindtap="quickInput" data-text="000">000</view>
+      <view class="quick-btn clear-btn" bindtap="clearInput">清除</view>
+    </view>
+  </view>
+
+  <!-- 保存按钮 -->
+  <button class="save-btn" bindtap="saveHand" disabled="{{!parsedHand.cards.length}}">
+    记录手牌
+  </button>
+
+  <!-- 今日记录数 -->
+  <view class="today-stats"
+003e
+    <text>今日记录: {{todayCount}} 手</text>
+    <text class="{{todayProfit >= 0 ? 'win' : 'loss'}}">盈亏: {{todayProfit >= 0 ? '+' : ''}}{{todayProfit}}</text>
+  </view>
+</view>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Poker Hand Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <nav class="nav">
+            <button class="nav-btn active" data-page="record">📝 记录</button>
+            <button class="nav-btn" data-page="review">📊 复盘</button>
+            <button class="nav-btn" data-page="stats">📈 统计</button>
+        </nav>
+
+        <!-- 记录页面 -->
+        <div id="record-page" class="page active">
+            <div class="compact-header">
+                <span>手牌快速记录</span>
+                <div class="mini-stats">
+                    <span id="today-count">0</span>手 <span id="today-profit">+0</span>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <input type="text" id="hand-input" placeholder="输入手牌" autocomplete="off" readonly
+>
+                
+                <div class="preview-area" id="preview-area">
+                    <div class="preview-cards" id="preview-cards"></div>
+                </div>
+            </div>
+
+            <!-- 牌面选择（第一行） -->
+            <div class="rank-selector" id="rank-selector">
+                <div class="key-row">
+                    <button class="key rank-btn" data-rank="A">A</button>
+                    <button class="key rank-btn" data-rank="K">K</button>
+                    <button class="key rank-btn" data-rank="Q">Q</button>
+                    <button class="key rank-btn" data-rank="J">J</button>
+                    <button class="key rank-btn" data-rank="T">T</button>
+                    <button class="key rank-btn" data-rank="9">9</button>
+                    <button class="key rank-btn" data-rank="8">8</button>
+                </div>
+                <div class="key-row">
+                    <button class="key rank-btn" data-rank="7">7</button>
+                    <button class="key rank-btn" data-rank="6">6</button>
+                    <button class="key rank-btn" data-rank="5">5</button>
+                    <button class="key rank-btn" data-rank="4">4</button>
+                    <button class="key rank-btn" data-rank="3">3</button>
+                    <button class="key rank-btn" data-rank="2">2</button>
+                    <button class="key" data-key="h">♥</button>
+                </div>
+            </div>
+
+            <!-- 花色弹出选择 -->
+            <div class="suit-popup" id="suit-popup" style="display: none;">
+                <div class="suit-popup-title">选择花色</div>
+                <div class="suit-popup-buttons">
+                    <button class="suit-popup-btn" data-suit="s">♠<span>黑桃</span></button>
+                    <button class="suit-popup-btn red" data-suit="h">♥<span>红心</span></button>
+                    <button class="suit-popup-btn red" data-suit="d">♦<span>方块</span></button>
+                    <button class="suit-popup-btn" data-suit="c">♣<span>梅花</span></button>
+                </div>
+                <button class="suit-popup-cancel" id="suit-cancel">取消</button>
+            </div>
+            <div class="popup-overlay" id="popup-overlay" style="display: none;"></div>
+
+            <!-- 其他按键 -->
+            <div class="other-keys">
+                <div class="key-row">
+                    <button class="key" data-key="s">♠</button>
+                    <button class="key" data-key="d">♦</button>
+                    <button class="key" data-key="c">♣</button>
+                    <button class="key" data-key="s-suited">s</button>
+                    <button class="key" data-key="o">o</button>
+                    <button class="key" data-key="+">+</button>
+                    <button class="key" data-key="-">-</button>
+                </div>
+                <div class="key-row">
+                    <button class="key num" data-key="0">0</button>
+                    <button class="key num" data-key="00">00</button>
+                    <button class="key num" data-key="000">000</button>
+                    <button class="key clear" data-key="clear">清除</button>
+                </div>
+            </div>
+
+            <button class="save-btn" id="save-btn">记录手牌</button>
+        </div>
+
+        <!-- 复盘页面 -->
+        <div id="review-page" class="page">
+            <div class="header">
+                <h1>手牌复盘</h1>
+                <input type="date" id="date-picker">
+            </div>
+            <div class="summary-cards">
+                <div class="summary-item"><span class="summary-value" id="total-hands">0</span><span class="summary-label">总手数</span></div>
+                <div class="summary-item"><span class="summary-value" id="total-amount">0</span><span class="summary-label">实际盈亏</span></div>
+                <div class="summary-item"><span class="summary-value" id="total-ev">0</span><span class="summary-label">EV盈亏</span></div>
+                <div class="summary-item"><span class="summary-value" id="diff-ev">0</span><span class="summary-label">差距</span></div>
+            </div>
+            <div class="sort-bar">
+                <span>排序:</span>
+                <button class="sort-btn active" data-sort="time">时间</button>
+                <button class="sort-btn" data-sort="amount">盈亏</button>
+                <button class="sort-btn" data-sort="ev">EV</button>
+                <button class="order-btn" id="order-btn">↓</button>
+            </div>
+            <div class="hand-list" id="hand-list"></div>
+        </div>
+
+        <!-- 统计页面 -->
+        <div id="stats-page" class="page">
+            <div class="header"><h1>数据统计</h1></div>
+            <div class="stats-content" id="stats-content"></div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

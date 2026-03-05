@@ -1,0 +1,14 @@
+{
+  "description": "Poker Hand Tracker - 德州扑克手牌记录工具",
+  "packOptions": { "ignore": [], "include": [] },
+  "setting": {
+    "bundle": false,
+    "es6": true,
+    "postcss": true,
+    "minified": true,
+    "urlCheck": false
+  },
+  "compileType": "miniprogram",
+  "appid": "wxpokertracker2024",
+  "projectname": "poker-hand-tracker"
+}

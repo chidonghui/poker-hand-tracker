@@ -1,0 +1,141 @@
+<!--pages/hand-detail/hand-detail.wxml-->
+<view class="header"
+>
+  <text class="title">手牌详情</text>
+  <text class="back" bindtap="goBack">← 返回</text>
+</view>
+
+<view class="container">
+  <!-- 扑克牌展示 -->
+  <view class="cards-display">
+    <view class="poker-card {{card.suit === 'H' || card.suit === 'D' ? 'red' : 'black'}}" 
+          wx:for="{{hand.cards}}" wx:for-item="card" wx:key="index"
+>
+      <text class="rank">{{card.rank}}</text>
+      <text class="suit suit-{{card.suitName}}"></text>
+    </view>
+  </view>
+
+  <!-- 基本信息 -->
+  <view class="info-section">
+    <view class="info-row">
+      <text class="label">手牌</text>
+      <text class="value">{{hand.handName}}</text>
+    </view>
+    
+    <view class="info-row">
+      <text class="label">记录时间</text>
+      <text class="value">{{formatTime(hand.timestamp)}}</text>
+    </view>
+    
+    <view class="info-row">
+      <text class="label">实际输赢</text>
+      <text class="value {{hand.amount >= 0 ? 'win' : 'loss'}}">{{hand.amount >= 0 ? '+' : ''}}{{hand.amount}}</text>
+    </view>
+  </view>
+
+  <!-- 复盘信息填写 -->
+  <view class="review-section">
+    <view class="section-title">复盘信息</view>
+
+    <!-- 公共牌 -->
+    <view class="form-group">
+      <text class="label">公共牌</text>
+      <view class="community-cards-section">
+        <!-- Flop -->
+        <view class="community-row">
+          <text class="street-label">Flop:</text>
+          <input class="card-input" value="{{flopInput}}" bindinput="onFlopInput" placeholder="AsKd3h" maxlength="8" />
+          <view class="parsed-cards" wx:if="{{parsedFlop.length > 0}}">
+            <view class="mini-card {{card.suit === 'H' || card.suit === 'D' ? 'red' : 'black'}}" 
+                  wx:for="{{parsedFlop}}" wx:for-item="card" wx:key="index">
+              <text class="mini-rank">{{card.rank}}</text>
+              <text class="mini-suit suit-{{card.suitName}}"></text>
+            </view>
+          </view>
+        </view>
+        
+        <!-- Turn -->
+        <view class="community-row">
+          <text class="street-label">Turn:</text>
+          <input class="card-input single" value="{{turnInput}}" bindinput="onTurnInput" placeholder="Qs" maxlength="2" />
+          <view class="parsed-card" wx:if="{{parsedTurn.rank}}">
+            <view class="mini-card {{parsedTurn.suit === 'H' || parsedTurn.suit === 'D' ? 'red' : 'black'}}">
+              <text class="mini-rank">{{parsedTurn.rank}}</text>
+              <text class="mini-suit suit-{{parsedTurn.suitName}}"></text>
+            </view>
+          </view>
+        </view>
+        
+        <!-- River -->
+        <view class="community-row">
+          <text class="street-label">River:</text>
+          <input class="card-input single" value="{{riverInput}}" bindinput="onRiverInput" placeholder="2c" maxlength="2" />
+          <view class="parsed-card" wx:if="{{parsedRiver.rank}}">
+            <view class="mini-card {{parsedRiver.suit === 'H' || parsedRiver.suit === 'D' ? 'red' : 'black'}}">
+              <text class="mini-rank">{{parsedRiver.rank}}</text>
+              <text class="mini-suit suit-{{parsedRiver.suitName}}"></text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 位置 -->
+    <view class="form-group"
+>
+      <text class="label">位置</text>
+      <view class="position-options"
+>
+        <view class="pos-btn {{hand.position === 'UTG' ? 'active' : ''}}" bindtap="setPosition" data-pos="UTG">UTG</view>
+        <view class="pos-btn {{hand.position === 'MP' ? 'active' : ''}}" bindtap="setPosition" data-pos="MP">MP</view>
+        <view class="pos-btn {{hand.position === 'CO' ? 'active' : ''}}" bindtap="setPosition" data-pos="CO">CO</view>
+        <view class="pos-btn {{hand.position === 'BTN' ? 'active' : ''}}" bindtap="setPosition" data-pos="BTN">BTN</view>
+        <view class="pos-btn {{hand.position === 'SB' ? 'active' : ''}}" bindtap="setPosition" data-pos="SB">SB</view>
+        <view class="pos-btn {{hand.position === 'BB' ? 'active' : ''}}" bindtap="setPosition" data-pos="BB">BB</view>
+      </view>
+    </view>
+
+    <!-- 行动 -->
+    <view class="form-group"
+>
+      <text class="label">主要行动</text>
+      <view class="action-options"
+>
+        <view class="action-btn {{hand.action === 'Open' ? 'active' : ''}}" bindtap="setAction" data-action="Open">Open</view>
+        <view class="action-btn {{hand.action === '3B' ? 'active' : ''}}" bindtap="setAction" data-action="3B">3B</view>
+        <view class="action-btn {{hand.action === '4B' ? 'active' : ''}}" bindtap="setAction" data-action="4B">4B</view>
+        <view class="action-btn {{hand.action === 'Call' ? 'active' : ''}}" bindtap="setAction" data-action="Call">Call</view>
+        <view class="action-btn {{hand.action === 'AI' ? 'active' : ''}}" bindtap="setAction" data-action="AI">All-in</view>
+      </view>
+    </view>
+
+    <!-- EV 填写 -->
+    <view class="form-group"
+>
+      <text class="label">EV (期望值)</text>
+      <view class="ev-input-group"
+>
+        <view class="ev-btn" bindtap="setEVSign" data-sign="+">+</view>
+        <input class="ev-input" type="number" value="{{evInput}}" bindinput="onEVInput" placeholder="输入EV" />
+        <view class="ev-btn" bindtap="setEVSign" data-sign="-">-</view>
+      </view>
+      <text class="hint">EV ≠ 实际输赢。例如: 你All-in胜率60%，底池10000，EV = +2000</text>
+    </view>
+
+    <!-- 备注 -->
+    <view class="form-group"
+>
+      <text class="label">备注</text>
+      <textarea class="note-input" value="{{hand.note}}" bindinput="onNoteInput" placeholder="记录这手牌的关键决策点、对手信息、改进建议..." />
+    </view>
+  </view>
+
+  <!-- 保存按钮 -->
+  <button class="save-btn" bindtap="saveReview"
+>保存复盘</button>
+
+  <!-- 删除按钮 -->
+  <button class="delete-btn" bindtap="deleteHand"
+>删除手牌</button>
+</view>

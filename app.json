@@ -1,0 +1,36 @@
+{
+  "pages": [
+    "pages/record/record",
+    "pages/review/review",
+    "pages/stats/stats",
+    "pages/hand-detail/hand-detail"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#1a1a2e",
+    "navigationBarTitleText": "Poker Hand Tracker",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#16213e"
+  },
+  "tabBar": {
+    "color": "#666666",
+    "selectedColor": "#e94560",
+    "backgroundColor": "#1a1a2e",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/record/record",
+        "text": "记录"
+      },
+      {
+        "pagePath": "pages/review/review",
+        "text": "复盘"
+      },
+      {
+        "pagePath": "pages/stats/stats",
+        "text": "统计"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json"
+}
