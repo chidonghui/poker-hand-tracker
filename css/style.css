@@ -1,12 +1,13 @@
 :root {
-    --bg: #0f0f23;
+    --bg: #0d0d15;
     --card-bg: #1a1a2e;
-    --surface: #16213e;
+    --surface: #252538;
     --primary: #e94560;
-    --text: #eaeaea;
-    --text-muted: #8888aa;
-    --win: #4caf50;
-    --loss: #f44336;
+    --text: #ffffff;
+    --text-muted: #8b8ba3;
+    --win: #4ade80;
+    --loss: #f87171;
+    --border: #2d2d45;
 }
 
 * {
@@ -20,15 +21,234 @@ body {
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
 #app {
     max-width: 500px;
     margin: 0 auto;
-    padding-bottom: 70px;
+    min-height: 100vh;
+    padding-bottom: 80px;
 }
 
-/* 导航栏 */
+/* 页面切换 */
+.page {
+    display: none;
+    padding: 20px;
+    min-height: calc(100vh - 80px);
+}
+
+.page.active {
+    display: block;
+}
+
+/* 记录页面头部 */
+.record-header {
+    margin-bottom: 20px;
+}
+
+.record-header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.current-time {
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 2px;
+}
+
+/* 统计卡片 */
+.stats-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    flex: 1;
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.stat-value.win {
+    color: var(--win);
+}
+
+.stat-value.loss {
+    color: var(--loss);
+}
+
+.stat-label {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+/* 输入区域 */
+.input-area {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.input-display {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 18px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 12px;
+    min-height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-display.has-content {
+    color: var(--text);
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 2px;
+}
+
+.input-hint {
+    font-size: 13px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+/* 扑克牌预览 */
+.cards-preview {
+    display: none;
+    justify-content: center;
+    gap: 12px;
+    padding: 10px;
+}
+
+.cards-preview.show {
+    display: flex;
+}
+
+.preview-cards {
+    display: flex;
+    gap: 12px;
+}
+
+.poker-card {
+    width: 60px;
+    height: 84px;
+    background: #fff;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #1a1a2e;
+    font-size: 22px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.poker-card.red {
+    color: #e53935;
+}
+
+.poker-card .suit {
+    font-size: 28px;
+    margin-top: 2px;
+}
+
+/* 键盘 */
+.keyboard {
+    margin-bottom: 16px;
+}
+
+.key-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.key {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 20px;
+    font-weight: 600;
+    height: 56px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.key:active {
+    transform: scale(0.95);
+    background: var(--surface);
+}
+
+.suit-btn {
+    font-size: 28px;
+}
+
+.suit-btn.red {
+    color: #ff6b6b;
+}
+
+.suited-btn {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.action-btn {
+    font-size: 24px;
+    color: var(--primary);
+}
+
+.backspace-btn {
+    grid-column: span 3;
+    background: rgba(233, 69, 96, 0.15);
+    color: var(--primary);
+    font-size: 16px;
+}
+
+/* 保存按钮 */
+.save-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--primary);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.save-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.save-btn:active:not(:disabled) {
+    opacity: 0.9;
+}
+
+/* 底部导航 */
 .nav {
     position: fixed;
     bottom: 0;
@@ -37,8 +257,8 @@ body {
     background: var(--card-bg);
     display: flex;
     justify-content: space-around;
-    padding: 10px 0;
-    border-top: 1px solid var(--surface);
+    padding: 8px 0;
+    border-top: 1px solid var(--border);
     z-index: 100;
 }
 
@@ -46,156 +266,166 @@ body {
     background: none;
     border: none;
     color: var(--text-muted);
-    font-size: 13px;
-    padding: 8px 24px;
+    font-size: 12px;
+    padding: 6px 24px;
     cursor: pointer;
-    border-radius: 20px;
-}
-
-.nav-btn.active {
-    background: var(--primary);
-    color: white;
-}
-
-/* 页面 */
-.page {
-    display: none;
-    padding: 20px;
-    min-height: 100vh;
-}
-
-.page.active {
-    display: block;
-}
-
-/* 记录页面 */
-#record-page {
-    padding: 20px;
-    padding-bottom: 100px;
-}
-
-/* 快捷手牌 */
-.quick-hands {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 15px;
-    padding: 12px;
-    background: var(--card-bg);
-    border-radius: 12px;
-}
-
-.quick-hand-btn {
-    padding: 8px 16px;
-    background: var(--surface);
-    border: 1px solid var(--surface);
-    border-radius: 8px;
-    color: var(--text);
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.15s;
-}
-
-.quick-hand-btn:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-}
-
-.quick-hand-btn:active {
-    background: var(--primary);
-    color: white;
-    transform: scale(0.95);
-}
-
-/* 退格按钮 */
-.key.backspace {
-    background: rgba(255, 193, 7, 0.2);
-    color: #ffc107;
-    font-size: 14px;
-}
-
-.compact-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    font-size: 20px;
-}
-
-.mini-stats {
-    font-size: 16px;
-    color: var(--text-muted);
-}
-
-.mini-stats span {
-    color: var(--primary);
-    font-weight: bold;
-    margin-right: 5px;
-}
-
-/* 输入区域 */
-.input-section {
-    background: var(--card-bg);
-    padding: 20px;
-    border-radius: 16px;
-    margin-bottom: 20px;
-}
-
-#hand-input {
-    width: 100%;
-    padding: 12px;
-    font-size: 20px;
-    background: var(--surface);
-    border: 2px solid transparent;
-    border-radius: 10px;
-    color: var(--text);
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 10px;
-}
-
-#hand-input:focus {
-    outline: none;
-    border-color: var(--primary);
-}
-
-.preview-area {
-    display: none;
-    text-align: center;
-    padding: 10px;
-    background: var(--surface);
-    border-radius: 8px;
-    min-height: 70px;
-}
-
-.preview-area.show {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-}
-
-.poker-card {
-    width: 50px;
-    height: 70px;
-    background: #fff;
-    border-radius: 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    color: #333;
+    gap: 4px;
+    transition: color 0.2s;
+}
+
+.nav-btn.active {
+    color: var(--primary);
+}
+
+.nav-icon {
+    font-size: 20px;
+}
+
+/* 复盘页面 */
+.page-header {
+    margin-bottom: 16px;
+}
+
+.page-header h2 {
+    font-size: 20px;
+    margin-bottom: 12px;
+}
+
+#date-picker {
+    width: 100%;
+    padding: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 16px;
+}
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.summary-item {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 12px 4px;
+    text-align: center;
+}
+
+.summary-value {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.summary-value.win {
+    color: var(--win);
+}
+
+.summary-value.loss {
+    color: var(--loss);
+}
+
+.summary-label {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.sort-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 10px;
+    background: var(--card-bg);
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.sort-btn {
+    padding: 6px 12px;
+    background: var(--surface);
+    border: none;
+    border-radius: 6px;
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.sort-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+.order-btn {
+    padding: 6px 10px;
+    background: var(--surface);
+    border: none;
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 13px;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+.hand-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.hand-item {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 14px;
+    cursor: pointer;
+}
+
+.hand-cards {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.hand-cards .red {
+    color: #ff6b6b;
+}
+
+.hand-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.hand-profit {
     font-size: 18px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
-.poker-card.red {
-    color: #e53935;
+.hand-profit.win {
+    color: var(--win);
 }
 
-/* 键盘 */
+.hand-profit.loss {
+    color: var(--loss);
+}
+
+/* 统计页面 */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    font-size: 16px;
+}
+
 /* 花色弹出选择 */
 .suit-popup {
     position: fixed;
@@ -205,7 +435,7 @@ body {
     background: var(--card-bg);
     padding: 20px;
     border-radius: 16px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     z-index: 200;
     width: 280px;
     text-align: center;
@@ -214,29 +444,29 @@ body {
 .suit-popup-title {
     font-size: 16px;
     color: var(--text-muted);
-    margin-bottom: 15px;
+    margin-bottom: 16px;
 }
 
 .suit-popup-buttons {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 15px;
+    gap: 12px;
+    margin-bottom: 16px;
 }
 
 .suit-popup-btn {
-    aspect-ratio: 1.2;
+    aspect-ratio: 1;
     background: var(--surface);
     border: 2px solid transparent;
     border-radius: 12px;
     color: var(--text);
-    font-size: 32px;
+    font-size: 40px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 5px;
+    gap: 4px;
 }
 
 .suit-popup-btn span {
@@ -250,14 +480,13 @@ body {
 
 .suit-popup-btn:active {
     border-color: var(--primary);
-    background: var(--primary);
 }
 
 .suit-popup-cancel {
     width: 100%;
     padding: 12px;
     background: transparent;
-    border: 1px solid var(--surface);
+    border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--text-muted);
     font-size: 14px;
@@ -274,211 +503,22 @@ body {
     z-index: 150;
 }
 
-.rank-selector {
-    margin-bottom: 15px;
-}
-
-.other-keys {
-    background: var(--card-bg);
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 15px;
-}
-
-.key-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 8px;
-}
-
-.key-row:last-child {
-    margin-bottom: 0;
-}
-
-.key {
-    flex: 1;
-    background: var(--surface);
-    border: none;
-    border-radius: 8px;
-    color: var(--text);
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    height: 50px;
-}
-
-.key:active {
-    background: var(--primary);
-}
-
-.key.red {
-    color: #ff6b6b;
-}
-
-.key.num {
-    font-size: 14px;
-}
-
-.key.clear {
-    background: rgba(244, 67, 54, 0.2);
-    color: #f44336;
-    font-size: 14px;
-}
-
-/* 保存按钮 */
-.save-btn {
-    width: 100%;
-    padding: 16px;
-    background: var(--primary);
-    border: none;
-    border-radius: 12px;
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-/* 复盘页面 */
-#review-page {
-    padding: 15px;
-    overflow-y: auto;
-}
-
-#review-page .header {
-    flex-shrink: 0;
-    margin-bottom: 15px;
-}
-
-#review-page .header h1 {
-    font-size: 20px;
-    margin-bottom: 10px;
-}
-
-#date-picker {
-    padding: 10px;
-    background: var(--surface);
-    border: none;
-    border-radius: 8px;
-    color: var(--text);
-    width: 100%;
-}
-
-.summary-cards {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin-bottom: 15px;
-    flex-shrink: 0;
-}
-
-.summary-item {
-    background: var(--card-bg);
-    padding: 12px 5px;
-    border-radius: 8px;
-    text-align: center;
-}
-
-.summary-value {
-    display: block;
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 2px;
-}
-
-.summary-value.win {
-    color: var(--win);
-}
-
-.summary-value.loss {
-    color: var(--loss);
-}
-
-.summary-label {
-    font-size: 10px;
-    color: var(--text-muted);
-}
-
-.sort-bar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 15px;
-    padding: 10px;
-    background: var(--card-bg);
-    border-radius: 8px;
-    font-size: 14px;
-    flex-shrink: 0;
-}
-
-.sort-btn {
-    padding: 6px 12px;
-    background: var(--surface);
-    border: none;
-    border-radius: 6px;
-    color: var(--text-muted);
-    font-size: 12px;
-    cursor: pointer;
-}
-
-.sort-btn.active {
-    background: var(--primary);
-    color: white;
-}
-
-.hand-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    overflow-y: auto;
-    flex: 1;
-}
-
-.hand-item {
-    background: var(--card-bg);
-    border-radius: 10px;
-    padding: 12px;
-    cursor: pointer;
-    flex-shrink: 0;
-}
-
-.hand-cards {
-    font-size: 18px;
-    margin-bottom: 6px;
-}
-
-.hand-cards .red {
-    color: #ff6b6b;
-}
-
-.hand-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: var(--text-muted);
-    font-size: 12px;
-}
-
-.hand-profit {
-    font-size: 16px;
-    font-weight: bold;
-}
-
-.hand-profit.win {
-    color: var(--win);
-}
-
-.hand-profit.loss {
-    color: var(--loss);
-}
-
-/* 统计页面 */
-#stats-page {
-    padding: 15px;
-    justify-content: center;
-    align-items: center;
-}
-
-.stats-content {
-    text-align: center;
-    font-size: 48px;
+/* 响应式 */
+@media (max-width: 380px) {
+    .key {
+        height: 50px;
+        font-size: 18px;
+    }
+    
+    .suit-btn {
+        font-size: 24px;
+    }
+    
+    .current-time {
+        font-size: 36px;
+    }
+    
+    .stat-value {
+        font-size: 28px;
+    }
 }
