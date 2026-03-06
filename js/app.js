@@ -4,8 +4,8 @@ const app = {
         currentPage: 'record',
         sortBy: 'time',
         sortOrder: 'desc',
-        tempRank: null,
-        currentInput: ''
+        currentInput: '',
+        inputPhase: 'cards' // 'cards' | 'amount'
     },
 
     init() {
@@ -19,17 +19,6 @@ const app = {
             datePicker.addEventListener('change', () => this.loadReviewData());
         }
         this.loadReviewData();
-    },
-
-    updateTime() {
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString('zh-CN', { 
-            hour: '2-digit', 
-            minute: '2-digit',
-            hour12: false 
-        });
-        const el = document.getElementById('current-time');
-        if (el) el.textContent = timeStr;
     },
 
     loadData() {
@@ -49,7 +38,6 @@ const app = {
         
         const totalProfit = todayHands.reduce((sum, h) => sum + h.amount, 0);
         
-        // 计算游戏时间（从第一手到最后一手）
         let gameTimeStr = '0h0m';
         if (todayHands.length > 0) {
             const times = todayHands.map(h => h.timestamp);
@@ -73,45 +61,44 @@ const app = {
         if (timeEl) timeEl.textContent = gameTimeStr;
     },
 
-    parseHand(input) {
-        if (!input || !input.trim()) return { cards: [], amount: 0, handName: '' };
+    // 解析输入，判断当前阶段
+    parseInput(input) {
+        if (!input) return { phase: 'cards', cards: [], amount: 0 };
         
-        const result = { cards: [], amount: 0, handName: '' };
-        
-        // 解析金额 (+1500 或 -500)
-        const amountMatch = input.match(/([+-])(\d+)/);
-        if (amountMatch) result.amount = parseInt(amountMatch[1] + amountMatch[2]);
-        
-        // 解析手牌部分
-        let handPart = input.replace(/[+-]\d+/, '').trim().toUpperCase();
-        const ranks = ['2','3','4','5','6','7','8','9','T','J','Q','K','A'];
-        
-        // 检查简写格式 (如 AKs, AKo, 99)
-        const shorthandMatch = handPart.match(/^([2-9TJQKA])([2-9TJQKA])([SO])$/);
-        if (shorthandMatch) {
-            const [, r1, r2, suited] = shorthandMatch;
-            result.cards = [
-                { rank: r1, suit: null },
-                { rank: r2, suit: null }
-            ];
-            result.suited = suited === 'S';
-            result.handName = r1 + r2 + suited.toLowerCase();
-            return result;
+        // 检查是否有 +- 号，有的话后面是数字
+        const amountMatch = input.match(/([+-])([AKQJT0-9]+)$/);
+        if (amountMatch) {
+            const symbol = amountMatch[1];
+            const numStr = amountMatch[2];
+            // 转换数字：A=1, T=10, 其他直接转数字
+            let amount = 0;
+            for (const char of numStr) {
+                if (char === 'A') amount = amount * 10 + 1;
+                else if (char === 'T') amount = amount * 10 + 10;
+                else if (/[0-9]/.test(char)) amount = amount * 10 + parseInt(char);
+            }
+            return { 
+                phase: 'amount', 
+                symbol,
+                amount: symbol === '+' ? amount : -amount,
+                numStr
+            };
         }
         
-        // 解析完整手牌 (如 AsKh)
-        let i = 0, count = 0;
-        while (i < handPart.length && count < 2) {
-            const char = handPart[i];
-            const upper = char.toUpperCase();
-            
-            if (ranks.includes(upper)) {
+        // 解析手牌
+        const cards = [];
+        let i = 0;
+        const ranks = ['2','3','4','5','6','7','8','9','T','J','Q','K','A'];
+        
+        while (i < input.length && cards.length < 2) {
+            const char = input[i].toUpperCase();
+            if (ranks.includes(char)) {
                 let suit = null;
-                if (i + 1 < handPart.length) {
-                    const next = handPart[i + 1].toLowerCase();
-                    const suitMap = { s: 'S', h: 'H', d: 'D', c: 'C' };
-                    if (suitMap[next]) {
-                        suit = suitMap[next];
+                // 检查下一位是否是花色
+                if (i + 1 < input.length) {
+                    const next = input[i + 1].toLowerCase();
+                    if (['s','h','d','c'].includes(next)) {
+                        suit = next.toUpperCase();
                         i += 2;
                     } else {
                         i++;
@@ -119,65 +106,67 @@ const app = {
                 } else {
                     i++;
                 }
-                
-                result.cards.push({
-                    rank: upper,
-                    suit: suit,
-                    suitName: { S: 'spade', H: 'heart', D: 'diamond', C: 'club' }[suit] || ''
-                });
-                count++;
+                cards.push({ rank: char, suit });
+            } else if (['S','O'].includes(char) && cards.length === 2) {
+                // s/o 标记（简写同花/不同花）
+                i++;
             } else {
                 i++;
             }
         }
         
-        // 生成手牌名称
-        if (result.cards.length === 2) {
-            const [c1, c2] = result.cards;
-            
-            if (c1.rank === c2.rank) {
-                // 对子
-                result.handName = c1.rank + c2.rank;
-            } else if (c1.suit && c2.suit) {
-                // 两张都有花色
-                result.handName = c1.rank + c1.suit.toLowerCase() + c2.rank + c2.suit.toLowerCase();
-                result.suited = c1.suit === c2.suit;
-            } else if (result.suited !== undefined) {
-                // 简写带了 s/o
-                result.handName = c1.rank + c2.rank + (result.suited ? 's' : 'o');
-            } else {
-                // 默认不同花
-                result.handName = c1.rank + c2.rank;
-            }
+        // 如果有 s/o 在末尾，处理简写
+        const suitedMatch = input.match(/([AKQJT2-9])([AKQJT2-9])([SO])$/i);
+        if (suitedMatch && cards.length === 2) {
+            // 简写格式，不需要单独处理，解析时已包含
         }
         
-        return result;
+        return { phase: cards.length >= 2 ? 'amount' : 'cards', cards };
+    },
+
+    // 获取当前输入阶段
+    getInputPhase() {
+        const parsed = this.parseInput(this.data.currentInput);
+        return parsed.phase;
     },
 
     updateDisplay() {
         const display = document.getElementById('hand-input');
-        const hint = document.querySelector('.input-hint');
+        const phase = this.getInputPhase();
+        
+        // 显示转换后的输入（把 A/T 数字转换回来显示）
+        let displayText = this.data.currentInput;
+        const amountMatch = displayText.match(/([+-])([AKQJT0-9]+)$/);
+        if (amountMatch) {
+            const symbol = amountMatch[1];
+            const numStr = amountMatch[2];
+            let amount = 0;
+            for (const char of numStr) {
+                if (char === 'A') amount = amount * 10 + 1;
+                else if (char === 'T') amount = amount * 10 + 10;
+                else if (/[0-9]/.test(char)) amount = amount * 10 + parseInt(char);
+            }
+            displayText = displayText.replace(amountMatch[0], symbol + amount);
+        }
         
         if (this.data.currentInput) {
-            display.textContent = this.data.currentInput;
+            display.textContent = displayText;
             display.classList.add('has-content');
-            if (hint) hint.style.display = 'none';
         } else {
-            display.textContent = '输入手牌，如: AKS+15';
+            display.textContent = '输入手牌，如: 67s+15';
             display.classList.remove('has-content');
-            if (hint) hint.style.display = 'block';
         }
         
         this.updatePreview();
     },
 
     updatePreview() {
-        const parsed = this.parseHand(this.data.currentInput);
+        const parsed = this.parseInput(this.data.currentInput);
         const preview = document.getElementById('preview-area');
         const cardsDiv = document.getElementById('preview-cards');
         const saveBtn = document.getElementById('save-btn');
         
-        if (parsed.cards.length > 0) {
+        if (parsed.cards && parsed.cards.length > 0) {
             preview.classList.add('show');
             
             cardsDiv.innerHTML = parsed.cards.map(card => {
@@ -191,7 +180,7 @@ const app = {
                 `;
             }).join('');
             
-            if (saveBtn) saveBtn.disabled = false;
+            if (saveBtn) saveBtn.disabled = parsed.cards.length < 2;
         } else {
             preview.classList.remove('show');
             if (saveBtn) saveBtn.disabled = true;
@@ -199,16 +188,29 @@ const app = {
     },
 
     saveHand() {
-        const parsed = this.parseHand(this.data.currentInput);
+        const parsed = this.parseInput(this.data.currentInput);
         
-        if (parsed.cards.length === 0) return;
+        if (!parsed.cards || parsed.cards.length < 2) {
+            this.showToast('请输入完整手牌');
+            return;
+        }
+        
+        const [c1, c2] = parsed.cards;
+        let handName = '';
+        if (c1.rank === c2.rank) {
+            handName = c1.rank + c2.rank;
+        } else if (c1.suit && c2.suit && c1.suit === c2.suit) {
+            handName = c1.rank + c2.rank + 's';
+        } else {
+            handName = c1.rank + c2.rank + 'o';
+        }
         
         const handData = {
             id: Date.now(),
             rawInput: this.data.currentInput,
             cards: parsed.cards,
-            handName: parsed.handName,
-            amount: parsed.amount,
+            handName: handName,
+            amount: parsed.amount || 0,
             ev: null,
             position: '',
             action: '',
@@ -224,7 +226,6 @@ const app = {
         this.updateDisplay();
         this.loadTodayStats();
         
-        // 显示成功提示
         this.showToast('✓ 记录成功');
     },
 
@@ -235,7 +236,7 @@ const app = {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(74, 222, 128, 0.9);
+            background: rgba(74, 222, 128, 0.95);
             color: #000;
             padding: 16px 32px;
             border-radius: 12px;
@@ -248,21 +249,7 @@ const app = {
         setTimeout(() => toast.remove(), 1500);
     },
 
-    showSuitPopup(rank) {
-        this.data.tempRank = rank;
-        document.getElementById('suit-popup').style.display = 'block';
-        document.getElementById('popup-overlay').style.display = 'block';
-    },
-
-    hideSuitPopup() {
-        this.data.tempRank = null;
-        document.getElementById('suit-popup').style.display = 'none';
-        document.getElementById('popup-overlay').style.display = 'none';
-    },
-
     bindEvents() {
-        const self = this;
-        
         // 导航切换
         document.querySelectorAll('.nav-item').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -280,39 +267,50 @@ const app = {
             });
         });
         
-        // 牌面按钮 - 弹出花色选择
-        document.querySelectorAll('.k.rank').forEach(btn => {
-            btn.addEventListener('click', () => {
-                this.showSuitPopup(btn.dataset.rank);
-            });
-        });
-        
-        // 花色选择
-        document.querySelectorAll('.suit-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (this.data.tempRank) {
-                    this.data.currentInput += this.data.tempRank + btn.dataset.suit;
-                    this.hideSuitPopup();
-                    this.updateDisplay();
-                }
-            });
-        });
-        
-        // 取消花色选择
-        document.getElementById('suit-cancel')?.addEventListener('click', () => this.hideSuitPopup());
-        document.getElementById('popup-overlay')?.addEventListener('click', () => this.hideSuitPopup());
-        
-        // 普通按键（花色、同花/不同花、加减号）
+        // 键盘输入
         document.querySelectorAll('.k[data-key]').forEach(key => {
             key.addEventListener('click', () => {
                 const k = key.dataset.key;
+                const phase = this.getInputPhase();
                 
                 if (k === 'backspace') {
                     this.data.currentInput = this.data.currentInput.slice(0, -1);
-                } else if (k === 's-suited') {
-                    this.data.currentInput += 's';
+                } else if (k === '+' || k === '-') {
+                    // 必须有两张牌才能输入金额
+                    const parsed = this.parseInput(this.data.currentInput);
+                    if (parsed.cards && parsed.cards.length >= 2) {
+                        // 去掉之前的符号，用新的
+                        this.data.currentInput = this.data.currentInput.replace(/[+-].*$/, '') + k;
+                    }
+                } else if (['s','o'].includes(k)) {
+                    // s/o 只能在输入牌阶段使用，且只能在两张牌之后
+                    if (phase === 'cards') {
+                        // 检查是否已经输入了 s/o
+                        if (!/[so]$/i.test(this.data.currentInput)) {
+                            this.data.currentInput += k;
+                        }
+                    }
                 } else {
-                    this.data.currentInput += k;
+                    // A-T 或数字
+                    if (phase === 'cards') {
+                        // 牌阶段：A-T 是牌面
+                        if (/[AKQJT2-9]/.test(k)) {
+                            // 检查当前输入了多少张牌
+                            const parsed = this.parseInput(this.data.currentInput);
+                            if (parsed.cards.length < 2) {
+                                this.data.currentInput += k;
+                            }
+                            // 如果已经有两张牌，不允许再输入牌面
+                        }
+                    } else {
+                        // 金额阶段：A=1, T=10
+                        if (/[AKQJT0]/.test(k) || k === '00' || k === '000') {
+                            // 检查是否已经有符号
+                            if (/[+-]/.test(this.data.currentInput)) {
+                                this.data.currentInput += k;
+                            }
+                        }
+                    }
                 }
                 
                 this.updateDisplay();
@@ -335,7 +333,6 @@ const app = {
             });
         });
         
-        // 排序方向
         document.getElementById('order-btn')?.addEventListener('click', () => {
             this.data.sortOrder = this.data.sortOrder === 'desc' ? 'asc' : 'desc';
             document.getElementById('order-btn').textContent = this.data.sortOrder === 'desc' ? '↓' : '↑';

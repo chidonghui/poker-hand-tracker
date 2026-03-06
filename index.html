@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Poker Hand Tracker</title>
-    <link rel="stylesheet" href="css/style.css?v=4">
+    <link rel="stylesheet" href="css/style.css?v=6">
 </head>
 <body>
     <div id="app">
@@ -30,48 +30,43 @@
 
             <!-- 输入显示 -->
             <div class="input-box">
-                <div class="input-text" id="hand-input">输入手牌，如: AKS+15</div>
-                <div class="input-example">示例: AKs+1500, JsTs-800, 99+500</div>
+                <div class="input-text" id="hand-input">输入手牌，如: 67s+15</div>
+                <div class="input-example">示例: AKs+1500, 99+500, JsTs-800</div>
+                
+                <!-- 扑克牌横向预览 -->
                 <div class="cards-box" id="preview-area">
                     <div id="preview-cards"></div>
                 </div>
             </div>
 
-            <!-- 5列键盘 -->
+            <!-- 智能键盘 -->
             <div class="keypad">
                 <div class="key-line">
-                    <button class="k rank" data-rank="A">A</button>
-                    <button class="k rank" data-rank="K">K</button>
-                    <button class="k rank" data-rank="Q">Q</button>
-                    <button class="k rank" data-rank="J">J</button>
-                    <button class="k rank" data-rank="T">T</button>
+                    <button class="k" data-key="A">A</button>
+                    <button class="k" data-key="K">K</button>
+                    <button class="k" data-key="Q">Q</button>
+                    <button class="k" data-key="J">J</button>
+                    <button class="k" data-key="T">T</button>
                 </div>
                 <div class="key-line">
-                    <button class="k rank" data-rank="9">9</button>
-                    <button class="k rank" data-rank="8">8</button>
-                    <button class="k rank" data-rank="7">7</button>
-                    <button class="k rank" data-rank="6">6</button>
-                    <button class="k rank" data-rank="5">5</button>
+                    <button class="k" data-key="9">9</button>
+                    <button class="k" data-key="8">8</button>
+                    <button class="k" data-key="7">7</button>
+                    <button class="k" data-key="6">6</button>
+                    <button class="k" data-key="5">5</button>
                 </div>
                 <div class="key-line">
-                    <button class="k rank" data-rank="4">4</button>
-                    <button class="k rank" data-rank="3">3</button>
-                    <button class="k rank" data-rank="2">2</button>
-                    <button class="k suit" data-key="s">♠</button>
-                    <button class="k suit red" data-key="h">♥</button>
+                    <button class="k" data-key="4">4</button>
+                    <button class="k" data-key="3">3</button>
+                    <button class="k" data-key="2">2</button>
+                    <button class="k suited" data-key="s">s</button>
+                    <button class="k suited" data-key="o">o</button>
                 </div>
                 <div class="key-line">
-                    <button class="k suit red" data-key="d">♦</button>
-                    <button class="k suit" data-key="c">♣</button>
-                    <button class="k" data-key="s-suited">s</button>
-                    <button class="k" data-key="o">o</button>
                     <button class="k action" data-key="+">+</button>
-                </div>
-                <div class="key-line">
                     <button class="k action" data-key="-">-</button>
                     <button class="k num" data-key="0">0</button>
                     <button class="k num" data-key="00">00</button>
-                    <button class="k num" data-key="000">000</button>
                     <button class="k del" data-key="backspace">⌫</button>
                 </div>
             </div>
@@ -134,21 +129,8 @@
                 <span>统计</span>
             </button>
         </nav>
-
-        <!-- 花色弹窗 -->
-        <div class="suit-dialog" id="suit-popup" style="display: none;">
-            <div class="dialog-title">选择花色</div>
-            <div class="suit-options">
-                <button class="suit-btn" data-suit="s">♠<span>黑桃</span></button>
-                <button class="suit-btn red" data-suit="h">♥<span>红心</span></button>
-                <button class="suit-btn red" data-suit="d">♦<span>方块</span></button>
-                <button class="suit-btn" data-suit="c">♣<span>梅花</span></button>
-            </div>
-            <button class="cancel-btn" id="suit-cancel">取消</button>
-        </div>
-        <div class="overlay" id="popup-overlay" style="display: none;"></div>
     </div>
 
-    <script src="js/app.js?v=4"></script>
+    <script src="js/app.js?v=6"></script>
 </body>
 </html>

@@ -127,25 +127,30 @@ body {
     display: none;
     justify-content: center;
     margin-top: 12px;
-    gap: 10px;
 }
 
 .cards-box.show {
     display: flex;
 }
 
+#preview-cards {
+    display: flex;
+    gap: 12px;
+}
+
 .poker-card {
-    width: 50px;
-    height: 70px;
+    width: 55px;
+    height: 76px;
     background: #fff;
-    border-radius: 6px;
+    border-radius: 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     color: #1a1a2e;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 700;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .poker-card.red {
@@ -153,7 +158,8 @@ body {
 }
 
 .poker-card .suit {
-    font-size: 22px;
+    font-size: 26px;
+    margin-top: 2px;
 }
 
 /* 键盘 - 核心紧凑布局 */
