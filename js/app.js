@@ -226,9 +226,20 @@ const app = {
         document.querySelectorAll('[data-key]').forEach(key => {
             key.addEventListener('click', () => {
                 const k = key.dataset.key;
-                if (k === 'clear') handInput.value = '';
-                else if (k === 's-suited') handInput.value += 's';
-                else handInput.value += k;
+                const input = document.getElementById('hand-input');
+                if (k === 'clear') input.value = '';
+                else if (k === 'backspace') input.value = input.value.slice(0, -1);
+                else if (k === 's-suited') input.value += 's';
+                else input.value += k;
+                this.updatePreview();
+            });
+        });
+        
+        // 快捷手牌按钮
+        document.querySelectorAll('.quick-hand-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const hand = btn.dataset.hand;
+                document.getElementById('hand-input').value = hand;
                 this.updatePreview();
             });
         });

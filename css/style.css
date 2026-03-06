@@ -71,6 +71,48 @@ body {
 /* 记录页面 */
 #record-page {
     padding: 20px;
+    padding-bottom: 100px;
+}
+
+/* 快捷手牌 */
+.quick-hands {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+    padding: 12px;
+    background: var(--card-bg);
+    border-radius: 12px;
+}
+
+.quick-hand-btn {
+    padding: 8px 16px;
+    background: var(--surface);
+    border: 1px solid var(--surface);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.quick-hand-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.quick-hand-btn:active {
+    background: var(--primary);
+    color: white;
+    transform: scale(0.95);
+}
+
+/* 退格按钮 */
+.key.backspace {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+    font-size: 14px;
 }
 
 .compact-header {

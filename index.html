@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Poker Hand Tracker</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=2">
 </head>
 <body>
     <div id="app">
@@ -21,6 +21,18 @@
                 <div class="mini-stats">
                     <span id="today-count">0</span>手 <span id="today-profit">+0</span>
                 </div>
+            </div>
+
+            <!-- 常用手牌快捷按钮 -->
+            <div class="quick-hands">
+                <button class="quick-hand-btn" data-hand="AA">AA</button>
+                <button class="quick-hand-btn" data-hand="KK">KK</button>
+                <button class="quick-hand-btn" data-hand="QQ">QQ</button>
+                <button class="quick-hand-btn" data-hand="JJ">JJ</button>
+                <button class="quick-hand-btn" data-hand="AKs">AKs</button>
+                <button class="quick-hand-btn" data-hand="AKo">AKo</button>
+                <button class="quick-hand-btn" data-hand="AQs">AQs</button>
+                <button class="quick-hand-btn" data-hand="TT">TT</button>
             </div>
 
             <div class="input-section">
@@ -82,6 +94,7 @@
                     <button class="key num" data-key="0">0</button>
                     <button class="key num" data-key="00">00</button>
                     <button class="key num" data-key="000">000</button>
+                    <button class="key backspace" data-key="backspace">⌫</button>
                     <button class="key clear" data-key="clear">清除</button>
                 </div>
             </div>
@@ -118,6 +131,6 @@
         </div>
     </div>
 
-    <script src="js/app.js"></script>
+    <script src="js/app.js?v=2"></script>
 </body>
 </html>
