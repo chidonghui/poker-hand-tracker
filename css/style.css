@@ -39,8 +39,8 @@ body {
 .page {
     display: none;
     flex: 1;
-    padding: 12px 16px;
-    padding-bottom: 70px;
+    padding: 10px 12px;
+    padding-bottom: 60px;
     overflow-y: auto;
 }
 
@@ -51,32 +51,32 @@ body {
 
 /* 标题 */
 .page-title {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 600;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     flex-shrink: 0;
 }
 
 /* 统计栏 */
 .stats-bar {
     display: flex;
-    gap: 10px;
-    margin-bottom: 12px;
+    gap: 8px;
+    margin-bottom: 10px;
     flex-shrink: 0;
 }
 
 .stat-box {
     flex: 1;
     background: var(--panel);
-    border-radius: 12px;
-    padding: 12px 8px;
+    border-radius: 10px;
+    padding: 10px 6px;
     text-align: center;
 }
 
 .stat-num {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 700;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
 
 .stat-num.win { color: var(--win); }
@@ -90,20 +90,20 @@ body {
 /* 输入区 */
 .input-box {
     background: var(--panel);
-    border-radius: 12px;
-    padding: 14px;
-    margin-bottom: 12px;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
     flex-shrink: 0;
 }
 
 .input-text {
     background: var(--key);
-    border-radius: 10px;
-    padding: 12px;
-    font-size: 16px;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 15px;
     color: var(--text-dim);
     text-align: center;
-    min-height: 44px;
+    min-height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -111,16 +111,16 @@ body {
 
 .input-text.has-content {
     color: var(--text);
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 600;
     letter-spacing: 1px;
 }
 
 .input-example {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-dim);
     text-align: center;
-    margin-top: 8px;
+    margin-top: 6px;
 }
 
 .cards-box {
@@ -161,28 +161,29 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin-bottom: 10px;
+    gap: 5px;
+    margin-bottom: 8px;
     min-height: 0;
 }
 
 .key-line {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
+    gap: 5px;
     flex: 1;
 }
 
 .k {
     background: var(--key);
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     color: var(--text);
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.1s;
     min-height: 0;
+    padding: 0;
 }
 
 .k:active {
@@ -212,12 +213,12 @@ body {
 /* 保存按钮 */
 .btn-save {
     width: 100%;
-    padding: 14px;
+    padding: 12px;
     background: var(--primary);
     border: none;
-    border-radius: 12px;
+    border-radius: 10px;
     color: white;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     flex-shrink: 0;
