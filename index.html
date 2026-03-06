@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Poker Hand Tracker</title>
-    <link rel="stylesheet" href="css/style.css?v=8">
+    <link rel="stylesheet" href="css/style.css?v=9">
 </head>
 <body>
     <div id="app">
@@ -103,22 +103,6 @@
                 <canvas id="profit-chart" width="400" height="150"></canvas>
             </div>
 
-            <!-- 分类统计 -->
-            <div class="category-stats">
-                <div class="cat-item">
-                    <span class="cat-name">All-in EV</span>
-                    <span class="cat-value" id="cat-allin">0</span>
-                </div>
-                <div class="cat-item">
-                    <span class="cat-name">Showdown</span>
-                    <span class="cat-value" id="cat-showdown">0</span>
-                </div>
-                <div class="cat-item">
-                    <span class="cat-name">非Showdown</span>
-                    <span class="cat-value" id="cat-noshow">0</span>
-                </div>
-            </div>
-
             <!-- 筛选标签 -->
             <div class="filter-tabs">
                 <button class="filter-tab active" data-filter="all">全部</button>
@@ -163,9 +147,85 @@
             </div>
             <button class="cancel-btn" id="suit-cancel">取消</button>
         </div>
+        
+        <!-- 牌谱编辑弹窗 -->
+        <div class="hand-editor" id="hand-editor" style="display: none;">
+            <div class="editor-header">
+                <div class="editor-title">编辑牌谱</div>
+                <button class="editor-close" id="editor-close">✕</button>
+            </div>
+            
+            <div class="editor-content">
+                <!-- 手牌信息 -->
+                <div class="editor-hand-info" id="editor-hand-info">
+                    <div class="editor-cards" id="editor-cards"></div>
+                    <div class="editor-amount" id="editor-amount"></div>
+                </div>
+                
+                <!-- 位置选择 -->
+                <div class="editor-section">
+                    <div class="section-title">位置</div>
+                    <div class="position-btns">
+                        <button class="pos-btn" data-pos="UTG">UTG</button>
+                        <button class="pos-btn" data-pos="MP">MP</button>
+                        <button class="pos-btn" data-pos="CO">CO</button>
+                        <button class="pos-btn" data-pos="BTN">BTN</button>
+                        <button class="pos-btn" data-pos="SB">SB</button>
+                        <button class="pos-btn" data-pos="BB">BB</button>
+                    </div>
+                </div>
+                
+                <!-- 翻牌前行动 -->
+                <div class="editor-section">
+                    <div class="section-title">翻牌前</div>
+                    <input type="text" class="editor-input" id="preflop-action" placeholder="例如: Open 3bb, MP call, BTN call">
+                </div>
+                
+                <!-- Flop -->
+                <div class="editor-section">
+                    <div class="section-title">Flop</div>
+                    <div class="board-input">
+                        <input type="text" class="card-input" id="flop-1" placeholder="A" maxlength="2">
+                        <input type="text" class="card-input" id="flop-2" placeholder="K" maxlength="2">
+                        <input type="text" class="card-input" id="flop-3" placeholder="Q" maxlength="2">
+                    </div>
+                    <input type="text" class="editor-input" id="flop-action" placeholder="例如: Check, BTN bet 5bb, Hero call">
+                </div>
+                
+                <!-- Turn -->
+                <div class="editor-section">
+                    <div class="section-title">Turn</div>
+                    <div class="board-input">
+                        <input type="text" class="card-input" id="turn-card" placeholder="T" maxlength="2">
+                    </div>
+                    <input type="text" class="editor-input" id="turn-action" placeholder="行动描述">
+                </div>
+                
+                <!-- River -->
+                <div class="editor-section">
+                    <div class="section-title">River</div>
+                    <div class="board-input">
+                        <input type="text" class="card-input" id="river-card" placeholder="5" maxlength="2">
+                    </div>
+                    <input type="text" class="editor-input" id="river-action" placeholder="行动描述">
+                </div>
+                
+                <!-- 备注 -->
+                <div class="editor-section">
+                    <div class="section-title">备注</div>
+                    <textarea class="editor-textarea" id="hand-note" placeholder="添加备注..."></textarea>
+                </div>
+            </div>
+            
+            <div class="editor-footer">
+                <button class="btn-cancel" id="btn-cancel-edit">取消</button>
+                <button class="btn-save-editor" id="btn-save-edit">保存</button>
+            </div>
+        </div>
+        
         <div class="overlay" id="popup-overlay" style="display: none;"></div>
     </div>
 
-    <script src="js/app.js?v=8"></script>
+    <script src="js/app.js?v=9"></script>
 </body>
 </html>

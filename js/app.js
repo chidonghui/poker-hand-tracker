@@ -25,12 +25,12 @@ const app = {
 
     loadTodayStats() {
         const today = new Date().toDateString();
-        const todayHands = this.data.hands.filter(h => 
+        const todayHands = this.data.hands.filter(h =>
             new Date(h.timestamp).toDateString() === today
         );
-        
+
         const totalProfit = todayHands.reduce((sum, h) => sum + h.amount, 0);
-        
+
         let gameTimeStr = '0h0m';
         if (todayHands.length > 0) {
             const times = todayHands.map(h => h.timestamp);
@@ -41,11 +41,11 @@ const app = {
             const minutes = Math.floor((diffMs % 3600000) / 60000);
             gameTimeStr = `${hours}h${minutes}m`;
         }
-        
+
         const countEl = document.getElementById('today-count');
         const profitEl = document.getElementById('today-profit');
         const timeEl = document.getElementById('today-time');
-        
+
         if (countEl) countEl.textContent = todayHands.length;
         if (profitEl) {
             profitEl.textContent = (totalProfit >= 0 ? '+' : '') + totalProfit;
@@ -65,7 +65,7 @@ const app = {
     updateDisplay() {
         const display = document.getElementById('hand-input');
         let displayText = this.data.currentInput;
-        
+
         if (/[+-]/.test(displayText)) {
             const match = displayText.match(/([+-])([AKQJT0-9]+)$/);
             if (match) {
@@ -79,7 +79,7 @@ const app = {
                 displayText = displayText.replace(match[0], match[1] + num);
             }
         }
-        
+
         if (this.data.currentInput) {
             display.textContent = displayText;
             display.classList.add('has-content');
@@ -87,7 +87,7 @@ const app = {
             display.textContent = '输入手牌，如: 67s+15';
             display.classList.remove('has-content');
         }
-        
+
         this.updatePreview();
     },
 
@@ -95,16 +95,16 @@ const app = {
         const preview = document.getElementById('preview-area');
         const cardsDiv = document.getElementById('preview-cards');
         const saveBtn = document.getElementById('save-btn');
-        
+
         const cards = [];
         const matches = this.data.currentInput.match(/[AKQJT2-9][shdc]?/gi) || [];
-        
+
         for (const match of matches.slice(0, 2)) {
             const rank = match[0].toUpperCase();
             const suit = match[1] ? match[1].toUpperCase() : null;
             cards.push({ rank, suit });
         }
-        
+
         if (cards.length > 0) {
             preview.classList.add('show');
             cardsDiv.innerHTML = cards.map(card => {
@@ -139,18 +139,18 @@ const app = {
     saveHand() {
         const cards = [];
         const matches = this.data.currentInput.match(/[AKQJT2-9][shdc]?/gi) || [];
-        
+
         for (const match of matches.slice(0, 2)) {
             const rank = match[0].toUpperCase();
             const suit = match[1] ? match[1].toUpperCase() : null;
             cards.push({ rank, suit });
         }
-        
+
         if (cards.length < 2) {
             this.showToast('请输入两张手牌');
             return;
         }
-        
+
         let amount = 0;
         const amountMatch = this.data.currentInput.match(/([+-])([AKQJT0-9]+)$/);
         if (amountMatch) {
@@ -162,13 +162,13 @@ const app = {
             }
             if (amountMatch[1] === '-') amount = -amount;
         }
-        
+
         const [c1, c2] = cards;
         let handName = '';
         if (c1.rank === c2.rank) handName = c1.rank + c2.rank;
         else if (c1.suit && c2.suit && c1.suit === c2.suit) handName = c1.rank + c2.rank + 's';
         else handName = c1.rank + c2.rank + 'o';
-        
+
         const handData = {
             id: Date.now(),
             rawInput: this.data.currentInput,
@@ -181,10 +181,10 @@ const app = {
             timestamp: Date.now(),
             reviewed: false
         };
-        
+
         this.data.hands.unshift(handData);
         this.saveData();
-        
+
         this.data.currentInput = '';
         this.updateDisplay();
         this.loadTodayStats();
@@ -214,22 +214,22 @@ const app = {
     // 复盘页面功能
     loadReviewData() {
         const today = new Date().toISOString().split('T')[0];
-        const filtered = this.data.hands.filter(h => 
+        const filtered = this.data.hands.filter(h =>
             new Date(h.timestamp).toISOString().split('T')[0] === today
         );
-        
+
         filtered.sort((a, b) => a.timestamp - b.timestamp);
-        
+
         const totalHands = filtered.length;
         const totalAmount = filtered.reduce((s, h) => s + h.amount, 0);
         const totalEV = filtered.reduce((s, h) => s + (h.ev || 0), 0);
         const bbPer100 = totalHands > 0 ? ((totalAmount / 10) / totalHands * 100).toFixed(1) : 0;
-        
+
         const handsEl = document.getElementById('review-hands');
         const netEl = document.getElementById('review-net');
         const evEl = document.getElementById('review-ev');
         const bbEl = document.getElementById('review-bb');
-        
+
         if (handsEl) handsEl.textContent = totalHands;
         if (netEl) {
             netEl.textContent = (totalAmount >= 0 ? '+' : '') + totalAmount;
@@ -240,26 +240,7 @@ const app = {
             evEl.className = 'main-stat-value ' + (totalEV >= 0 ? 'win' : 'loss');
         }
         if (bbEl) bbEl.textContent = bbPer100;
-        
-        const allinEl = document.getElementById('cat-allin');
-        const showdownEl = document.getElementById('cat-showdown');
-        const noshowEl = document.getElementById('cat-noshow');
-        
-        if (allinEl) {
-            allinEl.textContent = (totalEV >= 0 ? '+' : '') + totalEV;
-            allinEl.className = 'cat-value ' + (totalEV >= 0 ? 'win' : 'loss');
-        }
-        if (showdownEl) {
-            const showdownWin = Math.floor(totalAmount * 0.6);
-            showdownEl.textContent = (showdownWin >= 0 ? '+' : '') + showdownWin;
-            showdownEl.className = 'cat-value ' + (showdownWin >= 0 ? 'win' : 'loss');
-        }
-        if (noshowEl) {
-            const noshowWin = totalAmount - Math.floor(totalAmount * 0.6);
-            noshowEl.textContent = (noshowWin >= 0 ? '+' : '') + noshowWin;
-            noshowEl.className = 'cat-value ' + (noshowWin >= 0 ? 'win' : 'loss');
-        }
-        
+
         this.drawChart(filtered);
         this.renderHandList(filtered);
     },
@@ -267,25 +248,25 @@ const app = {
     drawChart(hands) {
         const canvas = document.getElementById('profit-chart');
         if (!canvas || hands.length === 0) return;
-        
+
         const ctx = canvas.getContext('2d');
         const width = canvas.width = canvas.offsetWidth || 400;
         const height = canvas.height = 120;
-        
+
         ctx.clearRect(0, 0, width, height);
-        
+
         let cumulative = 0;
         const data = hands.map(h => {
             cumulative += h.amount;
             return cumulative;
         });
-        
+
         if (data.length === 0) return;
-        
+
         const min = Math.min(...data, 0);
         const max = Math.max(...data, 0);
         const range = max - min || 1;
-        
+
         // 网格线
         ctx.strokeStyle = '#2a2a3e';
         ctx.lineWidth = 1;
@@ -296,7 +277,7 @@ const app = {
             ctx.lineTo(width, y);
             ctx.stroke();
         }
-        
+
         // 零线
         const zeroY = height - ((0 - min) / range) * height;
         ctx.strokeStyle = '#4a4a5e';
@@ -304,13 +285,13 @@ const app = {
         ctx.moveTo(0, zeroY);
         ctx.lineTo(width, zeroY);
         ctx.stroke();
-        
+
         // 折线
         const color = data[data.length - 1] >= 0 ? '#4ade80' : '#f87171';
         ctx.strokeStyle = color;
         ctx.lineWidth = 2;
         ctx.beginPath();
-        
+
         data.forEach((val, i) => {
             const x = (i / (data.length - 1 || 1)) * width;
             const y = height - ((val - min) / range) * height;
@@ -318,7 +299,7 @@ const app = {
             else ctx.lineTo(x, y);
         });
         ctx.stroke();
-        
+
         // 渐变填充
         const gradient = ctx.createLinearGradient(0, 0, 0, height);
         gradient.addColorStop(0, color === '#4ade80' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)');
@@ -332,20 +313,20 @@ const app = {
     renderHandList(hands) {
         const container = document.getElementById('hand-list');
         if (!container) return;
-        
+
         if (hands.length === 0) {
             container.innerHTML = '<div style="text-align:center;padding:40px;color:#6b6b7b;">暂无记录</div>';
             return;
         }
-        
+
         const reversed = [...hands].reverse();
-        
+
         container.innerHTML = reversed.map(h => {
-            const time = new Date(h.timestamp).toLocaleTimeString('zh-CN', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
+            const time = new Date(h.timestamp).toLocaleTimeString('zh-CN', {
+                hour: '2-digit',
+                minute: '2-digit'
             });
-            
+
             const cardsHtml = h.cards.map(c => {
                 const isRed = c.suit === 'H' || c.suit === 'D';
                 const suitSymbol = { S: '♠', H: '♥', D: '♦', C: '♣' }[c.suit] || '';
@@ -356,7 +337,7 @@ const app = {
                     </div>
                 `;
             }).join('');
-            
+
             return `
                 <div class="hand-row" data-id="${h.id}">
                     <div class="hand-cards-small">${cardsHtml}</div>
@@ -367,9 +348,106 @@ const app = {
                     <div class="hand-amount ${h.amount >= 0 ? 'win' : 'loss'}">
                         ${h.amount >= 0 ? '+' : ''}${h.amount}
                     </div>
+                    <button class="btn-edit" onclick="app.openEditor(${h.id})">编辑</button>
                 </div>
             `;
         }).join('');
+    },
+
+    // 编辑功能
+    editingHandId: null,
+
+    openEditor(handId) {
+        const hand = this.data.hands.find(h => h.id === handId);
+        if (!hand) return;
+
+        this.editingHandId = handId;
+
+        // 填充手牌信息
+        const cardsContainer = document.getElementById('editor-cards');
+        cardsContainer.innerHTML = hand.cards.map(c => {
+            const isRed = c.suit === 'H' || c.suit === 'D';
+            const suitSymbol = { S: '♠', H: '♥', D: '♦', C: '♣' }[c.suit] || '';
+            return `
+                <div class="editor-card ${isRed ? 'red' : ''}">
+                    <div>${c.rank}</div>
+                    <div class="suit">${suitSymbol}</div>
+                </div>
+            `;
+        }).join('');
+
+        document.getElementById('editor-amount').textContent = (hand.amount >= 0 ? '+' : '') + hand.amount;
+        document.getElementById('editor-amount').className = 'editor-amount ' + (hand.amount >= 0 ? 'win' : 'loss');
+
+        // 填充已有数据
+        if (hand.position) {
+            document.querySelectorAll('.pos-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.pos === hand.position);
+            });
+        }
+        if (hand.preflop) document.getElementById('preflop-action').value = hand.preflop;
+        if (hand.flopCards) {
+            document.getElementById('flop-1').value = hand.flopCards[0] || '';
+            document.getElementById('flop-2').value = hand.flopCards[1] || '';
+            document.getElementById('flop-3').value = hand.flopCards[2] || '';
+        }
+        if (hand.flop) document.getElementById('flop-action').value = hand.flop;
+        if (hand.turnCard) document.getElementById('turn-card').value = hand.turnCard;
+        if (hand.turn) document.getElementById('turn-action').value = hand.turn;
+        if (hand.riverCard) document.getElementById('river-card').value = hand.riverCard;
+        if (hand.river) document.getElementById('river-action').value = hand.river;
+        if (hand.note) document.getElementById('hand-note').value = hand.note;
+
+        // 显示编辑器
+        document.getElementById('hand-editor').style.display = 'flex';
+    },
+
+    closeEditor() {
+        document.getElementById('hand-editor').style.display = 'none';
+        this.editingHandId = null;
+
+        // 清空表单
+        document.querySelectorAll('.pos-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('preflop-action').value = '';
+        document.getElementById('flop-1').value = '';
+        document.getElementById('flop-2').value = '';
+        document.getElementById('flop-3').value = '';
+        document.getElementById('flop-action').value = '';
+        document.getElementById('turn-card').value = '';
+        document.getElementById('turn-action').value = '';
+        document.getElementById('river-card').value = '';
+        document.getElementById('river-action').value = '';
+        document.getElementById('hand-note').value = '';
+    },
+
+    saveEditor() {
+        if (!this.editingHandId) return;
+
+        const hand = this.data.hands.find(h => h.id === this.editingHandId);
+        if (!hand) return;
+
+        // 保存位置
+        const activePos = document.querySelector('.pos-btn.active');
+        if (activePos) hand.position = activePos.dataset.pos;
+
+        // 保存各阶段数据
+        hand.preflop = document.getElementById('preflop-action').value;
+        hand.flopCards = [
+            document.getElementById('flop-1').value.toUpperCase(),
+            document.getElementById('flop-2').value.toUpperCase(),
+            document.getElementById('flop-3').value.toUpperCase()
+        ].filter(c => c);
+        hand.flop = document.getElementById('flop-action').value;
+        hand.turnCard = document.getElementById('turn-card').value.toUpperCase();
+        hand.turn = document.getElementById('turn-action').value;
+        hand.riverCard = document.getElementById('river-card').value.toUpperCase();
+        hand.river = document.getElementById('river-action').value;
+        hand.note = document.getElementById('hand-note').value;
+        hand.reviewed = true;
+
+        this.saveData();
+        this.closeEditor();
+        this.showToast('✓ 保存成功');
     },
 
     bindEvents() {
@@ -378,18 +456,18 @@ const app = {
             btn.addEventListener('click', () => {
                 const page = btn.dataset.page;
                 this.data.currentPage = page;
-                
+
                 document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                
+
                 document.querySelectorAll('.page').forEach(p => {
                     p.classList.toggle('active', p.id === page + '-page');
                 });
-                
+
                 if (page === 'review') this.loadReviewData();
             });
         });
-        
+
         // 牌面按钮
         document.querySelectorAll('.k.rank').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -399,7 +477,7 @@ const app = {
                 }
             });
         });
-        
+
         // 花色选择
         document.querySelectorAll('.suit-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -411,16 +489,16 @@ const app = {
                 }
             });
         });
-        
+
         document.getElementById('suit-cancel')?.addEventListener('click', () => this.hideSuitPopup());
         document.getElementById('popup-overlay')?.addEventListener('click', () => this.hideSuitPopup());
-        
+
         // 普通按键
         document.querySelectorAll('.k[data-key]').forEach(key => {
             key.addEventListener('click', () => {
                 const k = key.dataset.key;
                 const state = this.parseInputState();
-                
+
                 if (k === 'backspace') {
                     this.data.currentInput = this.data.currentInput.slice(0, -1);
                 } else if (k === '+' || k === '-') {
@@ -438,18 +516,31 @@ const app = {
                         this.data.currentInput += k;
                     }
                 }
-                
+
                 this.updateDisplay();
             });
         });
-        
+
         // 保存按钮
         document.getElementById('save-btn')?.addEventListener('click', () => this.saveHand());
-        
+
         // 筛选标签
         document.querySelectorAll('.filter-tab').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // 编辑器事件
+        document.getElementById('editor-close')?.addEventListener('click', () => this.closeEditor());
+        document.getElementById('btn-cancel-edit')?.addEventListener('click', () => this.closeEditor());
+        document.getElementById('btn-save-edit')?.addEventListener('click', () => this.saveEditor());
+
+        // 位置按钮
+        document.querySelectorAll('.pos-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.pos-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             });
         });
