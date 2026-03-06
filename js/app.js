@@ -11,8 +11,6 @@ const app = {
     init() {
         this.loadData();
         this.bindEvents();
-        this.updateTime();
-        setInterval(() => this.updateTime(), 1000);
         this.loadTodayStats();
         
         const datePicker = document.getElementById('date-picker');
@@ -51,14 +49,28 @@ const app = {
         
         const totalProfit = todayHands.reduce((sum, h) => sum + h.amount, 0);
         
+        // 计算游戏时间（从第一手到最后一手）
+        let gameTimeStr = '0h0m';
+        if (todayHands.length > 0) {
+            const times = todayHands.map(h => h.timestamp);
+            const minTime = Math.min(...times);
+            const maxTime = Math.max(...times);
+            const diffMs = maxTime - minTime;
+            const hours = Math.floor(diffMs / 3600000);
+            const minutes = Math.floor((diffMs % 3600000) / 60000);
+            gameTimeStr = `${hours}h${minutes}m`;
+        }
+        
         const countEl = document.getElementById('today-count');
         const profitEl = document.getElementById('today-profit');
+        const timeEl = document.getElementById('today-time');
         
         if (countEl) countEl.textContent = todayHands.length;
         if (profitEl) {
             profitEl.textContent = (totalProfit >= 0 ? '+' : '') + totalProfit;
-            profitEl.className = 'stat-value ' + (totalProfit >= 0 ? 'win' : 'loss');
+            profitEl.className = 'stat-num ' + (totalProfit >= 0 ? 'win' : 'loss');
         }
+        if (timeEl) timeEl.textContent = gameTimeStr;
     },
 
     parseHand(input) {
@@ -252,12 +264,12 @@ const app = {
         const self = this;
         
         // 导航切换
-        document.querySelectorAll('.nav-btn').forEach(btn => {
+        document.querySelectorAll('.nav-item').forEach(btn => {
             btn.addEventListener('click', () => {
                 const page = btn.dataset.page;
                 this.data.currentPage = page;
                 
-                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 
                 document.querySelectorAll('.page').forEach(p => {
@@ -269,14 +281,14 @@ const app = {
         });
         
         // 牌面按钮 - 弹出花色选择
-        document.querySelectorAll('.rank-btn').forEach(btn => {
+        document.querySelectorAll('.k.rank').forEach(btn => {
             btn.addEventListener('click', () => {
                 this.showSuitPopup(btn.dataset.rank);
             });
         });
         
         // 花色选择
-        document.querySelectorAll('.suit-popup-btn').forEach(btn => {
+        document.querySelectorAll('.suit-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 if (this.data.tempRank) {
                     this.data.currentInput += this.data.tempRank + btn.dataset.suit;
@@ -291,13 +303,12 @@ const app = {
         document.getElementById('popup-overlay')?.addEventListener('click', () => this.hideSuitPopup());
         
         // 普通按键（花色、同花/不同花、加减号）
-        document.querySelectorAll('[data-key]').forEach(key => {
+        document.querySelectorAll('.k[data-key]').forEach(key => {
             key.addEventListener('click', () => {
                 const k = key.dataset.key;
                 
                 if (k === 'backspace') {
-                    // 清除全部
-                    this.data.currentInput = '';
+                    this.data.currentInput = this.data.currentInput.slice(0, -1);
                 } else if (k === 's-suited') {
                     this.data.currentInput += 's';
                 } else {
@@ -311,11 +322,14 @@ const app = {
         // 保存按钮
         document.getElementById('save-btn')?.addEventListener('click', () => this.saveHand());
         
+        // 日期选择
+        document.getElementById('date-picker')?.addEventListener('change', () => this.loadReviewData());
+        
         // 排序按钮
-        document.querySelectorAll('.sort-btn').forEach(btn => {
+        document.querySelectorAll('.sort-tag').forEach(btn => {
             btn.addEventListener('click', () => {
                 this.data.sortBy = btn.dataset.sort;
-                document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.sort-tag').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 this.loadReviewData();
             });
@@ -359,7 +373,7 @@ const app = {
         if (totalHandsEl) totalHandsEl.textContent = filtered.length;
         if (totalAmountEl) {
             totalAmountEl.textContent = (totalAmount >= 0 ? '+' : '') + totalAmount;
-            totalAmountEl.className = 'summary-value ' + (totalAmount >= 0 ? 'win' : 'loss');
+            totalAmountEl.className = 'data-val ' + (totalAmount >= 0 ? 'win' : 'loss');
         }
         if (totalEvEl) totalEvEl.textContent = (totalEV >= 0 ? '+' : '') + totalEV;
         if (diffEvEl) diffEvEl.textContent = (totalAmount - totalEV >= 0 ? '+' : '') + (totalAmount - totalEV).toFixed(0);
@@ -368,7 +382,7 @@ const app = {
         if (!container) return;
         
         if (filtered.length === 0) {
-            container.innerHTML = '<div class="empty-state">暂无记录</div>';
+            container.innerHTML = '<div class="empty-box">暂无记录</div>';
             return;
         }
         
