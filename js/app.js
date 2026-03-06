@@ -2,23 +2,15 @@ const app = {
     data: {
         hands: [],
         currentPage: 'record',
-        sortBy: 'time',
-        sortOrder: 'desc',
         currentInput: '',
         tempRank: null,
-        isAmountMode: false  // false=输入牌, true=输入金额
+        isAmountMode: false
     },
 
     init() {
         this.loadData();
         this.bindEvents();
         this.loadTodayStats();
-        
-        const datePicker = document.getElementById('date-picker');
-        if (datePicker) {
-            datePicker.value = new Date().toISOString().split('T')[0];
-            datePicker.addEventListener('change', () => this.loadReviewData());
-        }
         this.loadReviewData();
     },
 
@@ -62,30 +54,19 @@ const app = {
         if (timeEl) timeEl.textContent = gameTimeStr;
     },
 
-    // 解析当前输入状态
     parseInputState() {
         const input = this.data.currentInput;
-        
-        // 检查是否有 +- 号
         const hasSymbol = /[+-]/.test(input);
-        this.data.isAmountMode = hasSymbol;
-        
-        // 解析手牌数量
         const cardMatches = input.match(/[AKQJT2-9][shdc]?/gi) || [];
         const cardCount = cardMatches.length;
-        
         return { hasSymbol, cardCount };
     },
 
     updateDisplay() {
         const display = document.getElementById('hand-input');
-        const state = this.parseInputState();
-        
-        // 转换显示金额（A=1, T=10）
         let displayText = this.data.currentInput;
         
-        if (state.hasSymbol) {
-            // 提取符号后的数字部分
+        if (/[+-]/.test(displayText)) {
             const match = displayText.match(/([+-])([AKQJT0-9]+)$/);
             if (match) {
                 let num = 0;
@@ -111,12 +92,10 @@ const app = {
     },
 
     updatePreview() {
-        const state = this.parseInputState();
         const preview = document.getElementById('preview-area');
         const cardsDiv = document.getElementById('preview-cards');
         const saveBtn = document.getElementById('save-btn');
         
-        // 解析手牌用于预览
         const cards = [];
         const matches = this.data.currentInput.match(/[AKQJT2-9][shdc]?/gi) || [];
         
@@ -128,7 +107,6 @@ const app = {
         
         if (cards.length > 0) {
             preview.classList.add('show');
-            
             cardsDiv.innerHTML = cards.map(card => {
                 const isRed = card.suit === 'H' || card.suit === 'D';
                 const suitSymbol = { S: '♠', H: '♥', D: '♦', C: '♣' }[card.suit] || '';
@@ -139,7 +117,6 @@ const app = {
                     </div>
                 `;
             }).join('');
-            
             if (saveBtn) saveBtn.disabled = cards.length < 2;
         } else {
             preview.classList.remove('show');
@@ -160,9 +137,6 @@ const app = {
     },
 
     saveHand() {
-        const state = this.parseInputState();
-        
-        // 解析手牌
         const cards = [];
         const matches = this.data.currentInput.match(/[AKQJT2-9][shdc]?/gi) || [];
         
@@ -177,7 +151,6 @@ const app = {
             return;
         }
         
-        // 解析金额
         let amount = 0;
         const amountMatch = this.data.currentInput.match(/([+-])([AKQJT0-9]+)$/);
         if (amountMatch) {
@@ -190,16 +163,11 @@ const app = {
             if (amountMatch[1] === '-') amount = -amount;
         }
         
-        // 生成手牌名
         const [c1, c2] = cards;
         let handName = '';
-        if (c1.rank === c2.rank) {
-            handName = c1.rank + c2.rank;
-        } else if (c1.suit && c2.suit && c1.suit === c2.suit) {
-            handName = c1.rank + c2.rank + 's';
-        } else {
-            handName = c1.rank + c2.rank + 'o';
-        }
+        if (c1.rank === c2.rank) handName = c1.rank + c2.rank;
+        else if (c1.suit && c2.suit && c1.suit === c2.suit) handName = c1.rank + c2.rank + 's';
+        else handName = c1.rank + c2.rank + 'o';
         
         const handData = {
             id: Date.now(),
@@ -218,10 +186,8 @@ const app = {
         this.saveData();
         
         this.data.currentInput = '';
-        this.data.isAmountMode = false;
         this.updateDisplay();
         this.loadTodayStats();
-        
         this.showToast('✓ 记录成功');
     },
 
@@ -245,6 +211,167 @@ const app = {
         setTimeout(() => toast.remove(), 1500);
     },
 
+    // 复盘页面功能
+    loadReviewData() {
+        const today = new Date().toISOString().split('T')[0];
+        const filtered = this.data.hands.filter(h => 
+            new Date(h.timestamp).toISOString().split('T')[0] === today
+        );
+        
+        filtered.sort((a, b) => a.timestamp - b.timestamp);
+        
+        const totalHands = filtered.length;
+        const totalAmount = filtered.reduce((s, h) => s + h.amount, 0);
+        const totalEV = filtered.reduce((s, h) => s + (h.ev || 0), 0);
+        const bbPer100 = totalHands > 0 ? ((totalAmount / 10) / totalHands * 100).toFixed(1) : 0;
+        
+        const handsEl = document.getElementById('review-hands');
+        const netEl = document.getElementById('review-net');
+        const evEl = document.getElementById('review-ev');
+        const bbEl = document.getElementById('review-bb');
+        
+        if (handsEl) handsEl.textContent = totalHands;
+        if (netEl) {
+            netEl.textContent = (totalAmount >= 0 ? '+' : '') + totalAmount;
+            netEl.className = 'main-stat-value ' + (totalAmount >= 0 ? 'win' : 'loss');
+        }
+        if (evEl) {
+            evEl.textContent = (totalEV >= 0 ? '+' : '') + totalEV;
+            evEl.className = 'main-stat-value ' + (totalEV >= 0 ? 'win' : 'loss');
+        }
+        if (bbEl) bbEl.textContent = bbPer100;
+        
+        const allinEl = document.getElementById('cat-allin');
+        const showdownEl = document.getElementById('cat-showdown');
+        const noshowEl = document.getElementById('cat-noshow');
+        
+        if (allinEl) {
+            allinEl.textContent = (totalEV >= 0 ? '+' : '') + totalEV;
+            allinEl.className = 'cat-value ' + (totalEV >= 0 ? 'win' : 'loss');
+        }
+        if (showdownEl) {
+            const showdownWin = Math.floor(totalAmount * 0.6);
+            showdownEl.textContent = (showdownWin >= 0 ? '+' : '') + showdownWin;
+            showdownEl.className = 'cat-value ' + (showdownWin >= 0 ? 'win' : 'loss');
+        }
+        if (noshowEl) {
+            const noshowWin = totalAmount - Math.floor(totalAmount * 0.6);
+            noshowEl.textContent = (noshowWin >= 0 ? '+' : '') + noshowWin;
+            noshowEl.className = 'cat-value ' + (noshowWin >= 0 ? 'win' : 'loss');
+        }
+        
+        this.drawChart(filtered);
+        this.renderHandList(filtered);
+    },
+
+    drawChart(hands) {
+        const canvas = document.getElementById('profit-chart');
+        if (!canvas || hands.length === 0) return;
+        
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width = canvas.offsetWidth || 400;
+        const height = canvas.height = 120;
+        
+        ctx.clearRect(0, 0, width, height);
+        
+        let cumulative = 0;
+        const data = hands.map(h => {
+            cumulative += h.amount;
+            return cumulative;
+        });
+        
+        if (data.length === 0) return;
+        
+        const min = Math.min(...data, 0);
+        const max = Math.max(...data, 0);
+        const range = max - min || 1;
+        
+        // 网格线
+        ctx.strokeStyle = '#2a2a3e';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 4; i++) {
+            const y = height - (i / 4) * height;
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(width, y);
+            ctx.stroke();
+        }
+        
+        // 零线
+        const zeroY = height - ((0 - min) / range) * height;
+        ctx.strokeStyle = '#4a4a5e';
+        ctx.beginPath();
+        ctx.moveTo(0, zeroY);
+        ctx.lineTo(width, zeroY);
+        ctx.stroke();
+        
+        // 折线
+        const color = data[data.length - 1] >= 0 ? '#4ade80' : '#f87171';
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        data.forEach((val, i) => {
+            const x = (i / (data.length - 1 || 1)) * width;
+            const y = height - ((val - min) / range) * height;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+        
+        // 渐变填充
+        const gradient = ctx.createLinearGradient(0, 0, 0, height);
+        gradient.addColorStop(0, color === '#4ade80' ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)');
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = gradient;
+        ctx.lineTo(width, height);
+        ctx.lineTo(0, height);
+        ctx.fill();
+    },
+
+    renderHandList(hands) {
+        const container = document.getElementById('hand-list');
+        if (!container) return;
+        
+        if (hands.length === 0) {
+            container.innerHTML = '<div style="text-align:center;padding:40px;color:#6b6b7b;">暂无记录</div>';
+            return;
+        }
+        
+        const reversed = [...hands].reverse();
+        
+        container.innerHTML = reversed.map(h => {
+            const time = new Date(h.timestamp).toLocaleTimeString('zh-CN', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            const cardsHtml = h.cards.map(c => {
+                const isRed = c.suit === 'H' || c.suit === 'D';
+                const suitSymbol = { S: '♠', H: '♥', D: '♦', C: '♣' }[c.suit] || '';
+                return `
+                    <div class="mini-card ${isRed ? 'red' : ''}">
+                        <div>${c.rank}</div>
+                        <div class="suit">${suitSymbol}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            return `
+                <div class="hand-row" data-id="${h.id}">
+                    <div class="hand-cards-small">${cardsHtml}</div>
+                    <div class="hand-detail">
+                        <div class="hand-type">${h.handName}</div>
+                        <div class="hand-time">${time}</div>
+                    </div>
+                    <div class="hand-amount ${h.amount >= 0 ? 'win' : 'loss'}">
+                        ${h.amount >= 0 ? '+' : ''}${h.amount}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    },
+
     bindEvents() {
         // 导航切换
         document.querySelectorAll('.nav-item').forEach(btn => {
@@ -263,7 +390,7 @@ const app = {
             });
         });
         
-        // 牌面按钮 - 弹花色选择（只在非金额模式）
+        // 牌面按钮
         document.querySelectorAll('.k.rank').forEach(btn => {
             btn.addEventListener('click', () => {
                 const state = this.parseInputState();
@@ -288,41 +415,27 @@ const app = {
         document.getElementById('suit-cancel')?.addEventListener('click', () => this.hideSuitPopup());
         document.getElementById('popup-overlay')?.addEventListener('click', () => this.hideSuitPopup());
         
-        // 其他按键
+        // 普通按键
         document.querySelectorAll('.k[data-key]').forEach(key => {
             key.addEventListener('click', () => {
                 const k = key.dataset.key;
                 const state = this.parseInputState();
                 
                 if (k === 'backspace') {
-                    // 退格：如果删掉+-，退出金额模式
                     this.data.currentInput = this.data.currentInput.slice(0, -1);
                 } else if (k === '+' || k === '-') {
-                    // 必须有2张牌才能输入金额
                     if (state.cardCount >= 2) {
-                        // 移除之前的符号
                         this.data.currentInput = this.data.currentInput.replace(/[+-].*$/, '') + k;
                     }
                 } else if (k === 's' || k === 'o') {
-                    // s/o 简写，只在输入牌阶段
                     if (!state.hasSymbol && state.cardCount >= 2) {
                         if (!/[so]$/i.test(this.data.currentInput)) {
                             this.data.currentInput += k;
                         }
                     }
-                } else if (/[AKQJT2-9]/.test(k)) {
-                    // A-T 或数字
+                } else {
                     if (state.hasSymbol) {
-                        // 金额模式：A=1, T=10
                         this.data.currentInput += k;
-                    } else if (state.cardCount < 2) {
-                        // 牌模式且少于2张：需要弹花色（上面已处理rank按钮）
-                        // 这里处理的是再次点击（不应该执行到这里）
-                    }
-                } else if (k === '0' || k === '00' || k === '000') {
-                    // 纯数字，只在金额模式
-                    if (state.hasSymbol) {
-                        this.data.currentInput += k.replace(/0/g, '0');
                     }
                 }
                 
@@ -333,89 +446,13 @@ const app = {
         // 保存按钮
         document.getElementById('save-btn')?.addEventListener('click', () => this.saveHand());
         
-        // 日期选择
-        document.getElementById('date-picker')?.addEventListener('change', () => this.loadReviewData());
-        
-        // 排序
-        document.querySelectorAll('.sort-tag').forEach(btn => {
+        // 筛选标签
+        document.querySelectorAll('.filter-tab').forEach(btn => {
             btn.addEventListener('click', () => {
-                this.data.sortBy = btn.dataset.sort;
-                document.querySelectorAll('.sort-tag').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                this.loadReviewData();
             });
         });
-        
-        document.getElementById('order-btn')?.addEventListener('click', () => {
-            this.data.sortOrder = this.data.sortOrder === 'desc' ? 'asc' : 'desc';
-            document.getElementById('order-btn').textContent = this.data.sortOrder === 'desc' ? '↓' : '↑';
-            this.loadReviewData();
-        });
-    },
-
-    loadReviewData() {
-        const datePicker = document.getElementById('date-picker');
-        if (!datePicker) return;
-        
-        const date = datePicker.value;
-        const filtered = this.data.hands.filter(h => 
-            new Date(h.timestamp).toISOString().split('T')[0] === date
-        );
-        
-        filtered.sort((a, b) => {
-            let va, vb;
-            switch (this.data.sortBy) {
-                case 'amount': va = a.amount; vb = b.amount; break;
-                case 'ev': va = a.ev || 0; vb = b.ev || 0; break;
-                default: va = a.timestamp; vb = b.timestamp;
-            }
-            return this.data.sortOrder === 'desc' ? vb - va : va - vb;
-        });
-        
-        const totalAmount = filtered.reduce((s, h) => s + h.amount, 0);
-        const totalEV = filtered.reduce((s, h) => s + (h.ev || 0), 0);
-        
-        const totalHandsEl = document.getElementById('total-hands');
-        const totalAmountEl = document.getElementById('total-amount');
-        const totalEvEl = document.getElementById('total-ev');
-        const diffEvEl = document.getElementById('diff-ev');
-        
-        if (totalHandsEl) totalHandsEl.textContent = filtered.length;
-        if (totalAmountEl) {
-            totalAmountEl.textContent = (totalAmount >= 0 ? '+' : '') + totalAmount;
-            totalAmountEl.className = 'data-val ' + (totalAmount >= 0 ? 'win' : 'loss');
-        }
-        if (totalEvEl) totalEvEl.textContent = (totalEV >= 0 ? '+' : '') + totalEV;
-        if (diffEvEl) diffEvEl.textContent = (totalAmount - totalEV >= 0 ? '+' : '') + (totalAmount - totalEV).toFixed(0);
-        
-        const container = document.getElementById('hand-list');
-        if (!container) return;
-        
-        if (filtered.length === 0) {
-            container.innerHTML = '<div class="empty-box">暂无记录</div>';
-            return;
-        }
-        
-        container.innerHTML = filtered.map(h => {
-            const time = new Date(h.timestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
-            const cardsHtml = h.cards.map(c => {
-                const isRed = c.suit === 'H' || c.suit === 'D';
-                const suit = { S: '♠', H: '♥', D: '♦', C: '♣' }[c.suit] || '';
-                return `<span class="${isRed ? 'red' : ''}">${c.rank}${suit}</span>`;
-            }).join(' ');
-            
-            return `
-                <div class="hand-item" data-id="${h.id}">
-                    <div class="hand-cards">${cardsHtml}</div>
-                    <div class="hand-info">
-                        <span>${time}</span>
-                        <span class="hand-profit ${h.amount >= 0 ? 'win' : 'loss'}">
-                            ${h.amount >= 0 ? '+' : ''}${h.amount}
-                        </span>
-                    </div>
-                </div>
-            `;
-        }).join('');
     }
 };
 

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Poker Hand Tracker</title>
-    <link rel="stylesheet" href="css/style.css?v=7">
+    <link rel="stylesheet" href="css/style.css?v=8">
 </head>
 <body>
     <div id="app">
@@ -31,9 +31,7 @@
             <!-- 输入显示 -->
             <div class="input-box">
                 <div class="input-text" id="hand-input">输入手牌，如: 67s+15</div>
-                <div class="input-example">示例: AKs+1500, 99+500, JsTs-800</div>
-                
-                <!-- 扑克牌横向预览 -->
+                <div class="input-example">示例: AKs+1500, JsTs-800, 99+500</div>
                 <div class="cards-box" id="preview-area">
                     <div id="preview-cards"></div>
                 </div>
@@ -74,38 +72,62 @@
             <button class="btn-save" id="save-btn">记录手牌</button>
         </div>
 
-        <!-- 复盘页面 -->
+        <!-- 复盘页面 (Hand2Note风格) -->
         <div id="review-page" class="page">
-            <div class="page-title">手牌复盘</div>
-            <div class="filter-bar">
-                <input type="date" id="date-picker">
+            <!-- 顶部统计栏 -->
+            <div class="review-header">
+                <div class="date-range" id="date-display">今日</div>
+                <div class="main-stats">
+                    <div class="main-stat">
+                        <div class="main-stat-value" id="review-hands">0</div>
+                        <div class="main-stat-label">手数</div>
+                    </div>
+                    <div class="main-stat">
+                        <div class="main-stat-value win" id="review-net">+0</div>
+                        <div class="main-stat-label">实际盈亏</div>
+                    </div>
+                    <div class="main-stat">
+                        <div class="main-stat-value" id="review-ev">+0</div>
+                        <div class="main-stat-label">EV盈亏</div>
+                    </div>
+                    <div class="main-stat">
+                        <div class="main-stat-value" id="review-bb">0</div>
+                        <div class="main-stat-label">bb/100</div>
+                    </div>
+                </div>
             </div>
-            <div class="data-grid">
-                <div class="data-cell">
-                    <div class="data-val" id="total-hands">0</div>
-                    <div class="data-label">总手数</div>
+
+            <!-- 走势图 -->
+            <div class="chart-box">
+                <div class="chart-title">盈亏走势</div>
+                <canvas id="profit-chart" width="400" height="150"></canvas>
+            </div>
+
+            <!-- 分类统计 -->
+            <div class="category-stats">
+                <div class="cat-item">
+                    <span class="cat-name">All-in EV</span>
+                    <span class="cat-value" id="cat-allin">0</span>
                 </div>
-                <div class="data-cell">
-                    <div class="data-val" id="total-amount">0</div>
-                    <div class="data-label">实际盈亏</div>
+                <div class="cat-item">
+                    <span class="cat-name">Showdown</span>
+                    <span class="cat-value" id="cat-showdown">0</span>
                 </div>
-                <div class="data-cell">
-                    <div class="data-val" id="total-ev">0</div>
-                    <div class="data-label">EV盈亏</div>
-                </div>
-                <div class="data-cell">
-                    <div class="data-val" id="diff-ev">0</div>
-                    <div class="data-label">差距</div>
+                <div class="cat-item">
+                    <span class="cat-name">非Showdown</span>
+                    <span class="cat-value" id="cat-noshow">0</span>
                 </div>
             </div>
-            <div class="sort-row">
-                <span>排序:</span>
-                <button class="sort-tag active" data-sort="time">时间</button>
-                <button class="sort-tag" data-sort="amount">盈亏</button>
-                <button class="sort-tag" data-sort="ev">EV</button>
-                <button class="sort-dir" id="order-btn">↓</button>
+
+            <!-- 筛选标签 -->
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">全部</button>
+                <button class="filter-tab" data-filter="win">大赢</button>
+                <button class="filter-tab" data-filter="loss">大亏</button>
             </div>
-            <div class="list-box" id="hand-list"></div>
+
+            <!-- 手牌列表 -->
+            <div class="hand-list" id="hand-list"></div>
         </div>
 
         <!-- 统计页面 -->
@@ -144,6 +166,6 @@
         <div class="overlay" id="popup-overlay" style="display: none;"></div>
     </div>
 
-    <script src="js/app.js?v=7"></script>
+    <script src="js/app.js?v=8"></script>
 </body>
 </html>
