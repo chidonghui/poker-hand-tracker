@@ -630,14 +630,12 @@ body {
 }
 
 .position-btns {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
     gap: 8px;
-    flex-wrap: wrap;
 }
 
 .pos-btn {
-    flex: 1;
-    min-width: 50px;
     padding: 10px;
     background: var(--key);
     border: none;
