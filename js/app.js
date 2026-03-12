@@ -544,58 +544,6 @@ const app = {
                 btn.classList.add('active');
             });
         });
-
-        // 卡片选择器
-        this.initCardPicker();
-    },
-
-    initCardPicker() {
-        this.currentCardInput = null;
-        const modal = document.getElementById('card-picker-modal');
-        const overlay = document.getElementById('popup-overlay');
-        const iframe = document.getElementById('card-picker-iframe');
-
-        if (!modal || !overlay || !iframe) return;
-
-        // 监听 iframe 消息
-        window.addEventListener('message', (e) => {
-            if (e.data.type === 'cardSelected') {
-                if (this.currentCardInput) {
-                    this.currentCardInput.value = e.data.value;
-                    this.hideCardPicker();
-                    const inputs = document.querySelectorAll('.card-input');
-                    const currentIndex = Array.from(inputs).indexOf(this.currentCardInput);
-                    if (currentIndex < inputs.length - 1) {
-                        inputs[currentIndex + 1].focus();
-                    }
-                }
-            } else if (e.data.type === 'closePicker') {
-                this.hideCardPicker();
-            }
-        });
-
-        // 绑定输入框点击
-        document.querySelectorAll('.card-input').forEach(input => {
-            input.addEventListener('click', () => {
-                this.currentCardInput = input;
-                modal.style.display = 'block';
-                overlay.style.display = 'block';
-                iframe.contentWindow?.postMessage({
-                    type: 'setValue',
-                    value: input.value
-                }, '*');
-            });
-        });
-
-        overlay.addEventListener('click', () => this.hideCardPicker());
-    },
-
-    hideCardPicker() {
-        const modal = document.getElementById('card-picker-modal');
-        const overlay = document.getElementById('popup-overlay');
-        if (modal) modal.style.display = 'none';
-        if (overlay) overlay.style.display = 'none';
-        this.currentCardInput = null;
     }
 };
 
