@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Poker Hand Tracker</title>
-    <link rel="stylesheet" href="css/style.css?v=9">
+    <link rel="stylesheet" href="css/style.css" id="css-link">
+    <script>
+        // 自动加随机数防止缓存
+        document.getElementById('css-link').href = 'css/style.css?v=' + Date.now();
+    </script>
 </head>
 <body>
     <div id="app">
@@ -226,6 +230,9 @@
         <div class="overlay" id="popup-overlay" style="display: none;"></div>
     </div>
 
-    <script src="js/app.js?v=9"></script>
+    <script src="js/app.js" id="js-script"></script>
+    <script>
+        document.getElementById('js-script').src = 'js/app.js?v=' + Date.now();
+    </script>
 </body>
 </html>
