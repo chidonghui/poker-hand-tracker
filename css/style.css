@@ -1,7 +1,7 @@
 
 
-/* 方案 A: iframe 卡片选择器 */
-.iframe-picker-wrapper {
+/* 卡片选择器弹窗样式 */
+.card-picker-modal {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -10,14 +10,14 @@
     max-width: 420px;
     height: 80vh;
     max-height: 600px;
-    background: #1a1a2e;
+    background: #0a0a12;
     border-radius: 20px;
     overflow: hidden;
     z-index: 1000;
     box-shadow: 0 25px 80px rgba(0,0,0,0.6);
 }
 
-#iframe-picker-wrapper iframe {
+.card-picker-modal iframe {
     width: 100%;
     height: 100%;
     border: none;
