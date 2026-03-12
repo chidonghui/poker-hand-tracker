@@ -1,5 +1,31 @@
 
 
+/* ========== 新增样式 ========== */
+
+/* 位置按钮网格 - 10个位置 */
+.position-btns {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+
+.pos-btn {
+    padding: 10px;
+    background: var(--key);
+    border: none;
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pos-btn.active {
+    background: var(--primary);
+    color: #fff;
+}
+
 /* 卡片选择器弹窗 */
 .card-picker {
     position: fixed;
@@ -12,10 +38,10 @@
     background: linear-gradient(180deg, #1a1a2e 0%, #16162a 100%);
     border-radius: 20px;
     border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 25px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,77,109,0.1);
+    box-shadow: 0 25px 80px rgba(0,0,0,0.6);
     z-index: 1000;
     overflow: hidden;
-    display: flex;
+    display: none;
     flex-direction: column;
 }
 
@@ -32,7 +58,6 @@
     font-size: 18px;
     font-weight: 700;
     color: #fff;
-    letter-spacing: 0.5px;
 }
 
 .picker-close {
@@ -44,10 +69,6 @@
     color: #888;
     font-size: 16px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
 }
 
 .picker-close:active {
@@ -63,7 +84,6 @@
     gap: 12px;
 }
 
-/* 花色行 */
 .suit-row {
     display: flex;
     align-items: center;
@@ -74,21 +94,10 @@
     border: 1px solid rgba(255,255,255,0.04);
 }
 
-.suit-row.spades {
-    background: linear-gradient(135deg, rgba(100,149,237,0.08) 0%, rgba(100,149,237,0.02) 100%);
-}
-
-.suit-row.hearts {
-    background: linear-gradient(135deg, rgba(255,107,107,0.08) 0%, rgba(255,107,107,0.02) 100%);
-}
-
-.suit-row.diamonds {
-    background: linear-gradient(135deg, rgba(100,181,246,0.08) 0%, rgba(100,181,246,0.02) 100%);
-}
-
-.suit-row.clubs {
-    background: linear-gradient(135deg, rgba(129,199,132,0.08) 0%, rgba(129,199,132,0.02) 100%);
-}
+.suit-row.spades { background: linear-gradient(135deg, rgba(100,149,237,0.08) 0%, rgba(100,149,237,0.02) 100%); }
+.suit-row.hearts { background: linear-gradient(135deg, rgba(255,107,107,0.08) 0%, rgba(255,107,107,0.02) 100%); }
+.suit-row.diamonds { background: linear-gradient(135deg, rgba(100,181,246,0.08) 0%, rgba(100,181,246,0.02) 100%); }
+.suit-row.clubs { background: linear-gradient(135deg, rgba(129,199,132,0.08) 0%, rgba(129,199,132,0.02) 100%); }
 
 .suit-label {
     width: 28px;
@@ -105,7 +114,6 @@
 .suit-row.diamonds .suit-label { color: #64b5f6; }
 .suit-row.clubs .suit-label { color: #81c784; }
 
-/* 卡片网格 */
 .cards-grid {
     display: grid;
     grid-template-columns: repeat(13, 1fr);
@@ -128,13 +136,9 @@
     justify-content: center;
     gap: 2px;
     padding: 2px;
-    transition: all 0.15s;
-    position: relative;
 }
 
-.card-btn.red {
-    color: #ff6b6b;
-}
+.card-btn.red { color: #ff6b6b; }
 
 .card-btn:active {
     transform: scale(0.92);
@@ -147,36 +151,14 @@
     opacity: 0.7;
 }
 
-.card-btn:active .suit-icon {
-    opacity: 1;
-}
-
-/* 选中状态 */
 .card-btn.selected {
     background: var(--primary);
     color: #fff !important;
     box-shadow: 0 4px 12px rgba(255,77,109,0.4);
 }
 
-/* 弹窗遮罩 */
-.card-picker-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(4px);
-    z-index: 999;
-}
-
-/* 响应式调整 */
 @media (max-width: 380px) {
-    .cards-grid {
-        gap: 3px;
-    }
-    .card-btn {
-        font-size: 11px;
-        border-radius: 6px;
-    }
-    .card-btn .suit-icon {
-        font-size: 8px;
-    }
+    .cards-grid { gap: 3px; }
+    .card-btn { font-size: 11px; border-radius: 6px; }
+    .card-btn .suit-icon { font-size: 8px; }
 }
