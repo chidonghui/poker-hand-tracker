@@ -544,48 +544,6 @@ const app = {
                 btn.classList.add('active');
             });
         });
-
-        // 卡片选择器
-        this.initCardPicker();
-    },
-
-    initCardPicker() {
-        const picker = document.getElementById('card-picker');
-        const overlay = document.getElementById('popup-overlay');
-        const closeBtn = document.getElementById('picker-close');
-        let currentInput = null;
-
-        // 点击关闭
-        const closePicker = () => {
-            picker.style.display = 'none';
-            overlay.style.display = 'none';
-            currentInput = null;
-        };
-
-        closeBtn?.addEventListener('click', closePicker);
-        overlay?.addEventListener('click', closePicker);
-
-        // 绑定card-input点击事件
-        document.querySelectorAll('.card-input').forEach(input => {
-            input.addEventListener('click', () => {
-                currentInput = input;
-                picker.style.display = 'block';
-                overlay.style.display = 'block';
-            });
-        });
-
-        // 卡片按钮点击
-        document.querySelectorAll('.card-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (currentInput) {
-                    const rank = btn.dataset.rank;
-                    const suit = btn.dataset.suit;
-                    currentInput.value = rank + suit;
-                    currentInput.classList.add('has-value');
-                    closePicker();
-                }
-            });
-        });
     }
 };
 
