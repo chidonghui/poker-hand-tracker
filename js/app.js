@@ -544,6 +544,74 @@ const app = {
                 btn.classList.add('active');
             });
         });
+
+        // 初始化卡片选择器
+        this.initCardPicker();
+    },
+
+    // 卡片选择器初始化
+    initCardPicker() {
+        this.currentCardInput = null;
+        const picker = document.getElementById('card-picker');
+        const overlay = document.getElementById('popup-overlay');
+        const closeBtn = document.getElementById('picker-close');
+
+        if (!picker || !overlay || !closeBtn) return;
+
+        // 关闭选择器
+        const closePicker = () => {
+            picker.style.display = 'none';
+            overlay.style.display = 'none';
+            this.currentCardInput = null;
+        };
+
+        closeBtn.addEventListener('click', closePicker);
+        overlay.addEventListener('click', closePicker);
+
+        // 绑定 card-input 点击事件
+        document.querySelectorAll('.card-input').forEach(input => {
+            input.addEventListener('click', () => {
+                this.currentCardInput = input;
+                picker.style.display = 'flex';
+                overlay.style.display = 'block';
+                
+                // 清除之前选中状态
+                document.querySelectorAll('.card-btn').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                
+                // 如果有当前值，高亮对应按钮
+                const currentValue = input.value.toUpperCase();
+                if (currentValue) {
+                    const match = currentValue.match(/([AKQJT2-9])([SHDC])/);
+                    if (match) {
+                        const rank = match[1];
+                        const suit = match[2].toLowerCase();
+                        const btn = document.querySelector(`.card-btn[data-rank="${rank}"][data-suit="${suit}"]`);
+                        if (btn) btn.classList.add('selected');
+                    }
+                }
+            });
+        });
+
+        // 卡片按钮点击
+        document.querySelectorAll('.card-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (this.currentCardInput) {
+                    const rank = btn.dataset.rank;
+                    const suit = btn.dataset.suit;
+                    this.currentCardInput.value = rank + suit.toUpperCase();
+                    closePicker();
+                    
+                    // 自动聚焦到下一个输入框
+                    const inputs = document.querySelectorAll('.card-input');
+                    const currentIndex = Array.from(inputs).indexOf(this.currentCardInput);
+                    if (currentIndex < inputs.length - 1) {
+                        inputs[currentIndex + 1].focus();
+                    }
+                }
+            });
+        });
     }
 };
 
