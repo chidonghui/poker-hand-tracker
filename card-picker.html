@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>选择牌面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16162a 100%);
+            color: #fff;
+            padding: 16px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        
+        .title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+            color: #888;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .close-btn:active {
+            background: rgba(255,77,109,0.3);
+            color: #fff;
+        }
+        
+        /* 花色行 */
+        .suit-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        
+        .suit-row.spades { background: linear-gradient(135deg, rgba(100,149,237,0.08) 0%, rgba(100,149,237,0.02) 100%); }
+        .suit-row.hearts { background: linear-gradient(135deg, rgba(255,107,107,0.08) 0%, rgba(255,107,107,0.02) 100%); }
+        .suit-row.diamonds { background: linear-gradient(135deg, rgba(100,181,246,0.08) 0%, rgba(100,181,246,0.02) 100%); }
+        .suit-row.clubs { background: linear-gradient(135deg, rgba(129,199,132,0.08) 0%, rgba(129,199,132,0.02) 100%); }
+        
+        .suit-label {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .suit-row.spades .suit-label { color: #6495ed; }
+        .suit-row.hearts .suit-label { color: #ff6b6b; }
+        .suit-row.diamonds .suit-label { color: #64b5f6; }
+        .suit-row.clubs .suit-label { color: #81c784; }
+        
+        /* 卡片网格 */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(13, 1fr);
+            gap: 4px;
+            flex: 1;
+        }
+        
+        .card-btn {
+            aspect-ratio: 1;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.08);
+            color: #e0e0e0;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            padding: 2px;
+            transition: all 0.15s;
+        }
+        
+        .card-btn.red { color: #ff6b6b; }
+        
+        .card-btn:active, .card-btn.selected {
+            transform: scale(0.92);
+            background: #ff4d6d;
+            color: #fff !important;
+            box-shadow: 0 4px 12px rgba(255,77,109,0.4);
+        }
+        
+        .card-btn .suit-icon {
+            font-size: 10px;
+            opacity: 0.7;
+        }
+        
+        @media (max-width: 380px) {
+            .cards-grid { gap: 3px; }
+            .card-btn { font-size: 11px; border-radius: 6px; }
+            .card-btn .suit-icon { font-size: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">选择牌面</div>
+        <button class="close-btn" onclick="closePicker()">✕</button>
+    </div>
+    
+    <!-- 黑桃 -->
+    <div class="suit-row spades">
+        <div class="suit-label">♠</div>
+        <div class="cards-grid">
+            <button class="card-btn" data-rank="A" data-suit="s" onclick="selectCard(this)">A<span class="suit-icon">♠</span></button>
+            <button class="card-btn" data-rank="K" data-suit="s" onclick="selectCard(this)">K<span class="suit-icon">♠</span></button>
+            <button class="card-btn" data-rank="Q" data-suit="s" onclick="selectCard(this)">Q<span class="suit-icon">♠</span></button>
+            <button class="card-btn" data-rank="J" data-suit="s" onclick="selectCard(this)">J<span class="suit-icon">♠</span></button>
+            <button class="card-btn" data-rank="T" data-suit="s" onclick="selectCard(this)">T<span class="suit-icon">♠</span></button>
+            <button class="card-btn" data-rank="9" data-suit="s" onclick="selectCard(this)">9<span class="suit-icon">♠</span></button>
+            <button class="card-btn" data-rank="8" data-suit="s" onclick="selectCard(this)">8<span class="suit-icon">♠</span></button>
+            <button class="card-btn" data-rank="7" data-suit="s" onclick="selectCard(this)">7<span class="suit-icon">♠</span></button>
+            <button class="card-btn" data-rank="6" data-suit="s" onclick="selectCard(this)">6<span class="suit-icon">♠</span></button>
+            <button class="card-btn" data-rank="5" data-suit="s" onclick="selectCard(this)">5<span class="suit-icon">♠</span></button>
+            <button class="card-btn" data-rank="4" data-suit="s" onclick="selectCard(this)">4<span class="suit-icon">♠</span></button>
+            <button class="card-btn" data-rank="3" data-suit="s" onclick="selectCard(this)">3<span class="suit-icon">♠</span></button>
+            <button class="card-btn" data-rank="2" data-suit="s" onclick="selectCard(this)">2<span class="suit-icon">♠</span></button>
+        </div>
+    </div>
+    
+    <!-- 红心 -->
+    <div class="suit-row hearts">
+        <div class="suit-label">♥</div>
+        <div class="cards-grid">
+            <button class="card-btn red" data-rank="A" data-suit="h" onclick="selectCard(this)">A<span class="suit-icon">♥</span></button>
+            <button class="card-btn red" data-rank="K" data-suit="h" onclick="selectCard(this)">K<span class="suit-icon">♥</span></button>
+            <button class="card-btn red" data-rank="Q" data-suit="h" onclick="selectCard(this)">Q<span class="suit-icon">♥</span></button>
+            <button class="card-btn red" data-rank="J" data-suit="h" onclick="selectCard(this)">J<span class="suit-icon">♥</span></button>
+            <button class="card-btn red" data-rank="T" data-suit="h" onclick="selectCard(this)">T<span class="suit-icon">♥</span></button>
+            <button class="card-btn red" data-rank="9" data-suit="h" onclick="selectCard(this)">9<span class="suit-icon">♥</span></button>
+            <button class="card-btn red" data-rank="8" data-suit="h" onclick="selectCard(this)">8<span class="suit-icon">♥</span></button>
+            <button class="card-btn red" data-rank="7" data-suit="h" onclick="selectCard(this)">7<span class="suit-icon">♥</span></button>
+            <button class="card-btn red" data-rank="6" data-suit="h" onclick="selectCard(this)">6<span class="suit-icon">♥</span></button>
+            <button class="card-btn red" data-rank="5" data-suit="h" onclick="selectCard(this)">5<span class="suit-icon">♥</span></button>
+            <button class="card-btn red" data-rank="4" data-suit="h" onclick="selectCard(this)">4<span class="suit-icon">♥</span></button>
+            <button class="card-btn red" data-rank="3" data-suit="h" onclick="selectCard(this)">3<span class="suit-icon">♥</span></button>
+            <button class="card-btn red" data-rank="2" data-suit="h" onclick="selectCard(this)">2<span class="suit-icon">♥</span></button>
+        </div>
+    </div>
+    
+    <!-- 方块 -->
+    <div class="suit-row diamonds">
+        <div class="suit-label">♦</div>
+        <div class="cards-grid">
+            <button class="card-btn red" data-rank="A" data-suit="d" onclick="selectCard(this)">A<span class="suit-icon">♦</span></button>
+            <button class="card-btn red" data-rank="K" data-suit="d" onclick="selectCard(this)">K<span class="suit-icon">♦</span></button>
+            <button class="card-btn red" data-rank="Q" data-suit="d" onclick="selectCard(this)">Q<span class="suit-icon">♦</span></button>
+            <button class="card-btn red" data-rank="J" data-suit="d" onclick="selectCard(this)">J<span class="suit-icon">♦</span></button>
+            <button class="card-btn red" data-rank="T" data-suit="d" onclick="selectCard(this)">T<span class="suit-icon">♦</span></button>
+            <button class="card-btn red" data-rank="9" data-suit="d" onclick="selectCard(this)">9<span class="suit-icon">♦</span></button>
+            <button class="card-btn red" data-rank="8" data-suit="d" onclick="selectCard(this)">8<span class="suit-icon">♦</span></button>
+            <button class="card-btn red" data-rank="7" data-suit="d" onclick="selectCard(this)">7<span class="suit-icon">♦</span></button>
+            <button class="card-btn red" data-rank="6" data-suit="d" onclick="selectCard(this)">6<span class="suit-icon">♦</span></button>
+            <button class="card-btn red" data-rank="5" data-suit="d" onclick="selectCard(this)">5<span class="suit-icon">♦</span></button>
+            <button class="card-btn red" data-rank="4" data-suit="d" onclick="selectCard(this)">4<span class="suit-icon">♦</span></button>
+            <button class="card-btn red" data-rank="3" data-suit="d" onclick="selectCard(this)">3<span class="suit-icon">♦</span></button>
+            <button class="card-btn red" data-rank="2" data-suit="d" onclick="selectCard(this)">2<span class="suit-icon">♦</span></button>
+        </div>
+    </div>
+    
+    <!-- 梅花 -->
+    <div class="suit-row clubs">
+        <div class="suit-label">♣</div>
+        <div class="cards-grid">
+            <button class="card-btn" data-rank="A" data-suit="c" onclick="selectCard(this)">A<span class="suit-icon">♣</span></button>
+            <button class="card-btn" data-rank="K" data-suit="c" onclick="selectCard(this)">K<span class="suit-icon">♣</span></button>
+            <button class="card-btn" data-rank="Q" data-suit="c" onclick="selectCard(this)">Q<span class="suit-icon">♣</span></button>
+            <button class="card-btn" data-rank="J" data-suit="c" onclick="selectCard(this)">J<span class="suit-icon">♣</span></button>
+            <button class="card-btn" data-rank="T" data-suit="c" onclick="selectCard(this)">T<span class="suit-icon">♣</span></button>
+            <button class="card-btn" data-rank="9" data-suit="c" onclick="selectCard(this)">9<span class="suit-icon">♣</span></button>
+            <button class="card-btn" data-rank="8" data-suit="c" onclick="selectCard(this)">8<span class="suit-icon">♣</span></button>
+            <button class="card-btn" data-rank="7" data-suit="c" onclick="selectCard(this)">7<span class="suit-icon">♣</span></button>
+            <button class="card-btn" data-rank="6" data-suit="c" onclick="selectCard(this)">6<span class="suit-icon">♣</span></button>
+            <button class="card-btn" data-rank="5" data-suit="c" onclick="selectCard(this)">5<span class="suit-icon">♣</span></button>
+            <button class="card-btn" data-rank="4" data-suit="c" onclick="selectCard(this)">4<span class="suit-icon">♣</span></button>
+            <button class="card-btn" data-rank="3" data-suit="c" onclick="selectCard(this)">3<span class="suit-icon">♣</span></button>
+            <button class="card-btn" data-rank="2" data-suit="c" onclick="selectCard(this)">2<span class="suit-icon">♣</span></button>
+        </div>
+    </div>
+    
+    <script>
+        // 接收父页面传来的当前值
+        let currentValue = '';
+        
+        window.addEventListener('message', function(e) {
+            if (e.data.type === 'setValue') {
+                currentValue = e.data.value;
+                highlightCurrentCard();
+            }
+        });
+        
+        function highlightCurrentCard() {
+            document.querySelectorAll('.card-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            if (currentValue) {
+                const match = currentValue.toUpperCase().match(/([AKQJT2-9])([SHDC])/);
+                if (match) {
+                    const rank = match[1];
+                    const suit = match[2].toLowerCase();
+                    const btn = document.querySelector(`.card-btn[data-rank="${rank}"][data-suit="${suit}"]`);
+                    if (btn) btn.classList.add('selected');
+                }
+            }
+        }
+        
+        function selectCard(btn) {
+            const rank = btn.dataset.rank;
+            const suit = btn.dataset.suit;
+            const value = rank + suit.toUpperCase();
+            
+            // 发送给父页面
+            window.parent.postMessage({
+                type: 'cardSelected',
+                value: value
+            }, '*');
+        }
+        
+        function closePicker() {
+            window.parent.postMessage({
+                type: 'closePicker'
+            }, '*');
+        }
+    </script>
+</body>
+</html>

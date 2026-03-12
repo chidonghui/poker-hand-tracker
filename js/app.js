@@ -544,6 +544,73 @@ const app = {
                 btn.classList.add('active');
             });
         });
+
+        // 初始化 iframe 卡片选择器（方案A）
+        this.initIframePicker();
+    },
+
+    // 方案 A: iframe 卡片选择器
+    initIframePicker() {
+        this.currentCardInput = null;
+        const wrapper = document.getElementById('iframe-picker-wrapper');
+        const overlay = document.getElementById('popup-overlay');
+        const iframe = document.getElementById('card-picker-iframe');
+
+        if (!wrapper || !overlay || !iframe) return;
+
+        // 监听 iframe 消息
+        window.addEventListener('message', (e) => {
+            if (e.data.type === 'cardSelected') {
+                if (this.currentCardInput) {
+                    this.currentCardInput.value = e.data.value;
+                    this.hideIframePicker();
+                    
+                    // 自动聚焦到下一个输入框
+                    const inputs = document.querySelectorAll('.card-input');
+                    const currentIndex = Array.from(inputs).indexOf(this.currentCardInput);
+                    if (currentIndex < inputs.length - 1) {
+                        inputs[currentIndex + 1].focus();
+                    }
+                }
+            } else if (e.data.type === 'closePicker') {
+                this.hideIframePicker();
+            }
+        });
+
+        // 绑定 card-input 点击事件
+        document.querySelectorAll('.card-input').forEach(input => {
+            input.addEventListener('click', () => {
+                this.currentCardInput = input;
+                wrapper.style.display = 'block';
+                overlay.style.display = 'block';
+                
+                // 发送当前值给 iframe
+                iframe.onload = () => {
+                    iframe.contentWindow.postMessage({
+                        type: 'setValue',
+                        value: input.value
+                    }, '*');
+                };
+                // 如果 iframe 已加载，直接发送
+                if (iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({
+                        type: 'setValue',
+                        value: input.value
+                    }, '*');
+                }
+            });
+        });
+
+        // 点击遮罩关闭
+        overlay.addEventListener('click', () => this.hideIframePicker());
+    },
+
+    hideIframePicker() {
+        const wrapper = document.getElementById('iframe-picker-wrapper');
+        const overlay = document.getElementById('popup-overlay');
+        if (wrapper) wrapper.style.display = 'none';
+        if (overlay) overlay.style.display = 'none';
+        this.currentCardInput = null;
     }
 };
 
