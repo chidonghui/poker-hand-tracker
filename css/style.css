@@ -105,6 +105,32 @@ body {
     flex-direction: column;
 }
 
+/* 复盘页面 - 修复布局 */
+#review-page {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+    padding-bottom: 70px;
+    overflow-y: auto;
+}
+
+#review-page.active {
+    display: flex;
+}
+
+/* 统计页面 - 修复布局 */
+#stats-page {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+    padding-bottom: 70px;
+    overflow-y: auto;
+}
+
+#stats-page.active {
+    display: flex;
+}
+
 /* 标题 */
 .page-title {
     font-size: 17px;
