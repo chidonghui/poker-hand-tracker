@@ -475,6 +475,11 @@ body {
     white-space: nowrap;
 }
 
+.hand-line2 .suit-red { color: #ff4444; }
+.hand-line2 .suit-blue { color: #4488ff; }
+.hand-line2 .suit-green { color: #44aa44; }
+.hand-line2 .suit-black { color: #888888; }
+
 .hand-pos {
     color: var(--text);
 }
@@ -540,6 +545,11 @@ body {
     line-height: 1.4;
     border-bottom: 1px solid var(--panel);
 }
+
+.action-row .suit-red { color: #ff4444; }
+.action-row .suit-blue { color: #4488ff; }
+.action-row .suit-green { color: #44aa44; }
+.action-row .suit-black { color: #888888; }
 
 .action-row:last-child {
     border-bottom: none;

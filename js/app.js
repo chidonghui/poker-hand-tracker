@@ -343,24 +343,40 @@ const app = {
             if (h.position || h.preflop || h.flop || h.turn || h.river) {
                 const preflop = h.preflop ? `<div class="action-row"><span class="street">翻前</span> ${h.preflop}</div>` : '';
                 
-                // Flop显示带花色
+                // Flop显示带彩色花色
                 let flopText = '';
                 if (h.flopCards && h.flopSuits) {
                     flopText = h.flopCards.map((r, i) => {
                         const s = h.flopSuits[i];
-                        return r + (s ? {S: '♠', H: '♥', D: '♦', C: '♣'}[s] : '');
+                        const suitClass = s === 'H' ? 'suit-red' : s === 'D' ? 'suit-blue' : s === 'C' ? 'suit-green' : 'suit-black';
+                        const suitSymbol = s ? {S: '♠', H: '♥', D: '♦', C: '♣'}[s] : '';
+                        return `<span class="${suitClass}">${r}${suitSymbol}</span>`;
                     }).join('');
                 } else if (h.flopCards) {
                     flopText = h.flopCards.join('');
                 }
                 const flop = h.flop ? `<div class="action-row"><span class="street">Flop ${flopText}</span> ${h.flop}</div>` : '';
                 
-                // Turn显示带花色
-                const turnText = h.turnCard ? (h.turnCard + (h.turnSuit ? {S: '♠', H: '♥', D: '♦', C: '♣'}[h.turnSuit] : '')) : '';
+                // Turn显示带彩色花色
+                let turnText = '';
+                if (h.turnCard && h.turnSuit) {
+                    const suitClass = h.turnSuit === 'H' ? 'suit-red' : h.turnSuit === 'D' ? 'suit-blue' : h.turnSuit === 'C' ? 'suit-green' : 'suit-black';
+                    const suitSymbol = {S: '♠', H: '♥', D: '♦', C: '♣'}[h.turnSuit] || '';
+                    turnText = `<span class="${suitClass}">${h.turnCard}${suitSymbol}</span>`;
+                } else if (h.turnCard) {
+                    turnText = h.turnCard;
+                }
                 const turn = h.turn ? `<div class="action-row"><span class="street">Turn ${turnText}</span> ${h.turn}</div>` : '';
                 
-                // River显示带花色
-                const riverText = h.riverCard ? (h.riverCard + (h.riverSuit ? {S: '♠', H: '♥', D: '♦', C: '♣'}[h.riverSuit] : '')) : '';
+                // River显示带彩色花色
+                let riverText = '';
+                if (h.riverCard && h.riverSuit) {
+                    const suitClass = h.riverSuit === 'H' ? 'suit-red' : h.riverSuit === 'D' ? 'suit-blue' : h.riverSuit === 'C' ? 'suit-green' : 'suit-black';
+                    const suitSymbol = {S: '♠', H: '♥', D: '♦', C: '♣'}[h.riverSuit] || '';
+                    riverText = `<span class="${suitClass}">${h.riverCard}${suitSymbol}</span>`;
+                } else if (h.riverCard) {
+                    riverText = h.riverCard;
+                }
                 const river = h.river ? `<div class="action-row"><span class="street">River ${riverText}</span> ${h.river}</div>` : '';
                 
                 detailHtml = `
@@ -386,32 +402,40 @@ const app = {
                 `;
             }
 
-        // 紧凑摘要行 - 显示位置+完整牌面（包含花色）
-        const position = h.position || '';
-        
-        // 构建牌面显示（包含花色）：A♠K♥2♦/7♣/4♠
-        let boardDisplay = '';
-        if (h.flopCards && h.flopSuits) {
-            const flopWithSuits = h.flopCards.map((rank, i) => {
-                const suit = h.flopSuits[i];
-                return rank + (suit ? {S: '♠', H: '♥', D: '♦', C: '♣'}[suit] : '');
-            }).join('');
-            boardDisplay = flopWithSuits;
-        } else if (h.flopCards) {
-            boardDisplay = h.flopCards.join('');
-        }
-        
-        if (h.turnCard) {
-            const turnSuit = h.turnSuit ? {S: '♠', H: '♥', D: '♦', C: '♣'}[h.turnSuit] : '';
-            boardDisplay += '/' + h.turnCard + turnSuit;
-        }
-        
-        if (h.riverCard) {
-            const riverSuit = h.riverSuit ? {S: '♠', H: '♥', D: '♦', C: '♣'}[h.riverSuit] : '';
-            boardDisplay += '/' + h.riverCard + riverSuit;
-        }
-        
-        const summary = position + (boardDisplay ? ` | ${boardDisplay}` : '');
+            // 紧凑摘要行 - 显示位置+完整牌面（包含彩色花色）
+            const position = h.position || '';
+            
+            // 构建牌面显示（包含彩色花色）
+            let boardDisplay = '';
+            if (h.flopCards && h.flopSuits) {
+                const flopWithSuits = h.flopCards.map((rank, i) => {
+                    const suit = h.flopSuits[i];
+                    const suitClass = suit === 'H' ? 'suit-red' : suit === 'D' ? 'suit-blue' : suit === 'C' ? 'suit-green' : 'suit-black';
+                    const suitSymbol = suit ? {S: '♠', H: '♥', D: '♦', C: '♣'}[suit] : '';
+                    return `<span class="${suitClass}">${rank}${suitSymbol}</span>`;
+                }).join('');
+                boardDisplay = flopWithSuits;
+            } else if (h.flopCards) {
+                boardDisplay = h.flopCards.join('');
+            }
+            
+            if (h.turnCard && h.turnSuit) {
+                const suitClass = h.turnSuit === 'H' ? 'suit-red' : h.turnSuit === 'D' ? 'suit-blue' : h.turnSuit === 'C' ? 'suit-green' : 'suit-black';
+                const suitSymbol = {S: '♠', H: '♥', D: '♦', C: '♣'}[h.turnSuit] || '';
+                boardDisplay += `/<span class="${suitClass}">${h.turnCard}${suitSymbol}</span>`;
+            } else if (h.turnCard) {
+                boardDisplay += '/' + h.turnCard;
+            }
+            
+            if (h.riverCard && h.riverSuit) {
+                const suitClass = h.riverSuit === 'H' ? 'suit-red' : h.riverSuit === 'D' ? 'suit-blue' : h.riverSuit === 'C' ? 'suit-green' : 'suit-black';
+                const suitSymbol = {S: '♠', H: '♥', D: '♦', C: '♣'}[h.riverSuit] || '';
+                boardDisplay += `/<span class="${suitClass}">${h.riverCard}${suitSymbol}</span>`;
+            } else if (h.riverCard) {
+                boardDisplay += '/' + h.riverCard;
+            }
+            
+            const summary = position + (boardDisplay ? ` | ${boardDisplay}` : '');
 
             return `
                 <div class="hand-item" data-id="${h.id}">
