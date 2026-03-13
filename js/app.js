@@ -343,41 +343,41 @@ const app = {
             if (h.position || h.preflop || h.flop || h.turn || h.river) {
                 const preflop = h.preflop ? `<div class="action-row"><span class="stage-badge preflop">PREFLOP</span> ${h.preflop}</div>` : '';
                 
-                // Flop显示带彩色花色
-                let flopText = '';
+                // Flop牌面（单独显示）
+                let flopCards = '';
                 if (h.flopCards && h.flopSuits) {
-                    flopText = h.flopCards.map((r, i) => {
+                    flopCards = h.flopCards.map((r, i) => {
                         const s = h.flopSuits[i];
                         const suitClass = s === 'H' ? 'suit-red' : s === 'D' ? 'suit-blue' : s === 'C' ? 'suit-green' : 'suit-black';
                         const suitSymbol = s ? {S: '♠', H: '♥', D: '♦', C: '♣'}[s] : '';
                         return `<span class="${suitClass}">${r}${suitSymbol}</span>`;
                     }).join('');
                 } else if (h.flopCards) {
-                    flopText = h.flopCards.join('');
+                    flopCards = h.flopCards.join('');
                 }
-                const flop = h.flop ? `<div class="action-row"><span class="stage-badge flop">FLOP ${flopText}</span> ${h.flop}</div>` : '';
+                const flop = h.flop ? `<div class="action-row"><span class="stage-badge flop">FLOP</span> ${flopCards ? flopCards + ' | ' : ''}${h.flop}</div>` : '';
                 
-                // Turn显示带彩色花色
-                let turnText = '';
+                // Turn牌面（单独显示）
+                let turnCard = '';
                 if (h.turnCard && h.turnSuit) {
                     const suitClass = h.turnSuit === 'H' ? 'suit-red' : h.turnSuit === 'D' ? 'suit-blue' : h.turnSuit === 'C' ? 'suit-green' : 'suit-black';
                     const suitSymbol = {S: '♠', H: '♥', D: '♦', C: '♣'}[h.turnSuit] || '';
-                    turnText = `<span class="${suitClass}">${h.turnCard}${suitSymbol}</span>`;
+                    turnCard = `<span class="${suitClass}">${h.turnCard}${suitSymbol}</span>`;
                 } else if (h.turnCard) {
-                    turnText = h.turnCard;
+                    turnCard = h.turnCard;
                 }
-                const turn = h.turn ? `<div class="action-row"><span class="stage-badge turn">TURN ${turnText}</span> ${h.turn}</div>` : '';
+                const turn = h.turn ? `<div class="action-row"><span class="stage-badge turn">TURN</span> ${turnCard ? turnCard + ' | ' : ''}${h.turn}</div>` : '';
                 
-                // River显示带彩色花色
-                let riverText = '';
+                // River牌面（单独显示）
+                let riverCard = '';
                 if (h.riverCard && h.riverSuit) {
                     const suitClass = h.riverSuit === 'H' ? 'suit-red' : h.riverSuit === 'D' ? 'suit-blue' : h.riverSuit === 'C' ? 'suit-green' : 'suit-black';
                     const suitSymbol = {S: '♠', H: '♥', D: '♦', C: '♣'}[h.riverSuit] || '';
-                    riverText = `<span class="${suitClass}">${h.riverCard}${suitSymbol}</span>`;
+                    riverCard = `<span class="${suitClass}">${h.riverCard}${suitSymbol}</span>`;
                 } else if (h.riverCard) {
-                    riverText = h.riverCard;
+                    riverCard = h.riverCard;
                 }
-                const river = h.river ? `<div class="action-row"><span class="stage-badge river">RIVER ${riverText}</span> ${h.river}</div>` : '';
+                const river = h.river ? `<div class="action-row"><span class="stage-badge river">RIVER</span> ${riverCard ? riverCard + ' | ' : ''}${h.river}</div>` : '';
                 
                 detailHtml = `
                     <div class="hand-detail-expand">
