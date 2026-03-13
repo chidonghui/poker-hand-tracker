@@ -18,7 +18,6 @@
 
 html, body {
     height: 100%;
-    height: 100dvh; /* 使用动态视口高度 */
     overflow: hidden;
 }
 
@@ -30,7 +29,6 @@ body {
 
 #app {
     height: 100vh;
-    height: 100dvh; /* 使用动态视口高度 */
     max-width: 430px;
     margin: 0 auto;
     display: flex;
@@ -42,93 +40,13 @@ body {
     display: none;
     flex: 1;
     padding: 10px 12px;
-    padding-bottom: 80px;
+    padding-bottom: 60px;
     overflow-y: auto;
-    min-height: 0;
 }
 
 .page.active {
     display: flex;
     flex-direction: column;
-}
-
-/* 记录页面特殊布局 - 确保保存按钮可见 */
-#record-page {
-    display: flex;
-    flex-direction: column;
-    height: calc(100% - 70px); /* 减去导航栏高度 */
-    max-height: calc(100dvh - 70px);
-    overflow-y: auto;
-    padding-bottom: 10px;
-}
-
-#record-page .page-title {
-    flex-shrink: 0;
-    margin-bottom: 8px;
-}
-
-#record-page .stats-bar {
-    flex-shrink: 0;
-    margin-bottom: 8px;
-}
-
-#record-page .input-box {
-    flex-shrink: 0;
-    margin-bottom: 8px;
-}
-
-/* 键盘区域 - 减小高度 */
-#record-page .keypad {
-    flex-shrink: 0;
-    height: 240px;
-    min-height: 200px;
-    max-height: 280px;
-    margin-bottom: 8px;
-}
-
-#record-page .key-line {
-    flex: 1;
-    min-height: 44px;
-    max-height: 60px;
-}
-
-/* 保存按钮 - 确保在视口内 */
-#record-page .btn-save {
-    flex-shrink: 0;
-    height: 44px;
-    margin-bottom: 80px; /* 增加底部间距，确保不被导航栏遮挡 */
-    position: relative;
-}
-
-.page.active {
-    display: flex;
-    flex-direction: column;
-}
-
-/* 复盘页面 - 修复布局 */
-#review-page {
-    display: none;
-    flex-direction: column;
-    height: 100%;
-    padding-bottom: 70px;
-    overflow-y: auto;
-}
-
-#review-page.active {
-    display: flex;
-}
-
-/* 统计页面 - 修复布局 */
-#stats-page {
-    display: none;
-    flex-direction: column;
-    height: 100%;
-    padding-bottom: 70px;
-    overflow-y: auto;
-}
-
-#stats-page.active {
-    display: flex;
 }
 
 /* 标题 */
@@ -252,7 +170,6 @@ body {
     gap: 5px;
     margin-bottom: 8px;
     min-height: 0;
-    max-height: 45vh; /* 限制键盘最大高度 */
 }
 
 .key-line {
@@ -260,8 +177,6 @@ body {
     grid-template-columns: repeat(5, 1fr);
     gap: 5px;
     flex: 1;
-    min-height: 44px; /* 确保按键最小高度 */
-    max-height: 60px; /* 限制按键最大高度 */
 }
 
 .k {
@@ -273,12 +188,8 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.1s;
-    min-height: 44px; /* 移动端最小触摸高度 */
-    max-height: 60px;
+    min-height: 0;
     padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .k:active {
@@ -317,9 +228,6 @@ body {
     font-weight: 600;
     cursor: pointer;
     flex-shrink: 0;
-    margin-bottom: 10px; /* 增加底部间距 */
-    position: relative; /* 确保在文档流中 */
-    z-index: 50; /* 低于导航栏但可见 */
 }
 
 .btn-save:disabled {
@@ -335,10 +243,9 @@ body {
     background: var(--panel);
     display: flex;
     justify-content: space-around;
-    padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 8px));
+    padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
     border-top: 1px solid #252538;
     z-index: 100;
-    min-height: 56px; /* 确保导航栏高度 */
 }
 
 .nav-item {
