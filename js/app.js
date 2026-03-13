@@ -686,23 +686,25 @@ const app = {
     openCardPicker(slotId) {
         this.currentCardSlot = slotId;
         
-        // 创建或显示牌面选择弹窗
+        // 每次都重新创建弹窗内容，确保显示牌面选择第一步
         let popup = document.getElementById('card-picker-popup');
         if (!popup) {
             popup = document.createElement('div');
             popup.id = 'card-picker-popup';
             popup.className = 'card-picker-popup';
-            popup.innerHTML = `
-                <button class="popup-close" onclick="app.closeCardPicker()">✕</button>
-                <div class="card-picker-title">选择牌面</div>
-                <div class="rank-selector">
-                    ${['A','K','Q','J','T','9','8','7','6','5','4','3','2'].map(r => 
-                        `<button class="rank-btn" data-rank="${r}" onclick="app.selectCardRank('${r}')">${r}</button>`
-                    ).join('')}
-                </div>
-            `;
             document.body.appendChild(popup);
         }
+        
+        // 重置为牌面选择界面
+        popup.innerHTML = `
+            <button class="popup-close" onclick="app.closeCardPicker()">✕</button>
+            <div class="card-picker-title">选择牌面</div>
+            <div class="rank-selector">
+                ${['A','K','Q','J','T','9','8','7','6','5','4','3','2'].map(r => 
+                    `<button class="rank-btn" data-rank="${r}" onclick="app.selectCardRank('${r}')">${r}</button>`
+                ).join('')}
+            </div>
+        `;
         
         popup.classList.add('show');
         
