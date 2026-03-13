@@ -228,6 +228,7 @@ body {
     font-weight: 600;
     cursor: pointer;
     flex-shrink: 0;
+    margin-bottom: 80px; /* 防止被底部导航栏遮挡 */
 }
 
 .btn-save:disabled {
