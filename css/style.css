@@ -557,6 +557,32 @@ body {
     text-align: center;
 }
 
+.no-actions-tip {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-dim);
+    font-size: 13px;
+}
+
+.edit-btn-row {
+    display: flex;
+    justify-content: center;
+    padding-top: 10px;
+    border-top: 1px solid var(--panel);
+    margin-top: 8px;
+}
+
+.btn-edit-inline {
+    padding: 8px 20px;
+    background: var(--primary);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
 /* 统计页面 */
 .empty-box {
     flex: 1;

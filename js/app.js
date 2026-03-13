@@ -352,6 +352,19 @@ const app = {
                         ${flop}
                         ${turn}
                         ${river}
+                        <div class="edit-btn-row">
+                            <button class="btn-edit-inline" onclick="event.stopPropagation(); app.openEditor(${h.id})">编辑牌谱</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // 没有详情时显示提示和编辑按钮
+                detailHtml = `
+                    <div class="hand-detail-expand">
+                        <div class="no-actions-tip">暂无详细记录</div>
+                        <div class="edit-btn-row">
+                            <button class="btn-edit-inline" onclick="event.stopPropagation(); app.openEditor(${h.id})">录入牌谱</button>
+                        </div>
                     </div>
                 `;
             }
