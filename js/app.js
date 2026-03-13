@@ -338,38 +338,64 @@ const app = {
                 `;
             }).join('');
 
-            // 紧凑的一行显示：位置 + Flop + 结果
-            let compactInfo = '';
-            if (h.position) {
-                const flopCards = h.flopCards ? h.flopCards.join('') : '';
-                const flopShort = flopCards ? ` | ${flopCards}` : '';
-                compactInfo = `<span class="pos-tag-compact">${h.position}</span>${flopShort}`;
+            // 构建展开后的详细行动
+            let detailHtml = '';
+            if (h.position || h.preflop || h.flop || h.turn || h.river) {
+                const preflop = h.preflop ? `<div class="action-row"><span class="street">翻前</span> ${h.preflop}</div>` : '';
+                const flop = h.flop ? `<div class="action-row"><span class="street">Flop ${h.flopCards?.join('') || ''}</span> ${h.flop}</div>` : '';
+                const turn = h.turn ? `<div class="action-row"><span class="street">Turn ${h.turnCard || ''}</span> ${h.turn}</div>` : '';
+                const river = h.river ? `<div class="action-row"><span class="street">River ${h.riverCard || ''}</span> ${h.river}</div>` : '';
+                
+                detailHtml = `
+                    <div class="hand-detail-expand">
+                        ${preflop}
+                        ${flop}
+                        ${turn}
+                        ${river}
+                    </div>
+                `;
             }
 
+            // 紧凑摘要行
+            const position = h.position || '';
+            const flopShort = h.flopCards ? h.flopCards.join('') : '';
+            const summary = position + (flopShort ? ` | ${flopShort}` : '');
+
             return `
-                <div class="hand-row" data-id="${h.id}">
-                    <div class="hand-cards-small">${cardsHtml}</div>
-                    <div class="hand-detail-compact">
-                        <div class="hand-line">
-                            <span class="hand-name">${h.handName}</span>
-                            <span class="hand-time-compact">${time}</span>
+                <div class="hand-item" data-id="${h.id}">
+                    <div class="hand-summary">
+                        <div class="hand-cards-small">${cardsHtml}</div>
+                        <div class="hand-info">
+                            <div class="hand-line1">
+                                <span class="hand-name">${h.handName}</span>
+                                <span class="hand-time">${time}</span>
+                            </div>
+                            <div class="hand-line2">
+                                ${summary ? `<span class="hand-pos">${summary}</span>` : '<span class="no-detail">点击展开添加详情</span>'}
+                            </div>
                         </div>
-                        <div class="hand-line">
-                            ${compactInfo}
+                        <div class="hand-amount ${h.amount >= 0 ? 'win' : 'loss'}">
+                            ${h.amount >= 0 ? '+' : ''}${h.amount}
                         </div>
+                        <div class="expand-icon">▼</div>
                     </div>
-                    <div class="hand-amount ${h.amount >= 0 ? 'win' : 'loss'}">
-                        ${h.amount >= 0 ? '+' : ''}${h.amount}
-                    </div>
+                    ${detailHtml}
                 </div>
             `;
         }).join('');
 
-        // 绑定点击事件
-        container.querySelectorAll('.hand-row').forEach(row => {
-            row.addEventListener('click', () => {
-                const id = parseInt(row.dataset.id);
-                this.openEditor(id);
+        // 绑定点击展开/收起事件
+        container.querySelectorAll('.hand-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                // 如果点击的是已经展开的，则收起
+                if (item.classList.contains('expanded')) {
+                    item.classList.remove('expanded');
+                } else {
+                    // 先收起其他所有
+                    container.querySelectorAll('.hand-item').forEach(i => i.classList.remove('expanded'));
+                    // 展开当前
+                    item.classList.add('expanded');
+                }
             });
         });
     },

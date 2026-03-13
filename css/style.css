@@ -381,36 +381,46 @@ body {
     color: white;
 }
 
-/* 手牌列表 - 紧凑单行显示 */
+/* 手牌列表 - 可展开设计 */
 .hand-list {
     flex: 1;
     overflow-y: auto;
 }
 
-.hand-row {
+.hand-item {
     background: var(--panel);
-    border-radius: 10px;
-    padding: 12px;
+    border-radius: 12px;
     margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.2s;
 }
 
-.hand-row:active {
+.hand-item:active {
     background: var(--key-active);
+}
+
+.hand-item.expanded {
+    background: var(--key);
+}
+
+/* 摘要行（始终显示） */
+.hand-summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    cursor: pointer;
 }
 
 .hand-cards-small {
     display: flex;
-    gap: 6px;
+    gap: 4px;
     flex-shrink: 0;
 }
 
 .mini-card {
-    width: 32px;
-    height: 44px;
+    width: 28px;
+    height: 38px;
     background: #fff;
     border-radius: 4px;
     display: flex;
@@ -418,7 +428,7 @@ body {
     align-items: center;
     justify-content: center;
     color: #1a1a2e;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     flex-shrink: 0;
 }
@@ -428,22 +438,21 @@ body {
 }
 
 .mini-card .suit {
-    font-size: 14px;
+    font-size: 12px;
 }
 
-.hand-detail-compact {
+.hand-info {
     flex: 1;
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
 }
 
-.hand-line {
+.hand-line1 {
     display: flex;
     align-items: center;
     gap: 8px;
-    overflow: hidden;
 }
 
 .hand-name {
@@ -452,32 +461,101 @@ body {
     color: var(--text);
 }
 
-.hand-time-compact {
+.hand-time {
     font-size: 11px;
     color: var(--text-dim);
     flex-shrink: 0;
 }
 
-.pos-tag-compact {
-    display: inline-block;
-    background: var(--primary);
-    color: white;
-    padding: 2px 8px;
-    border-radius: 4px;
+.hand-line2 {
     font-size: 12px;
-    font-weight: 600;
-    flex-shrink: 0;
+    color: var(--text-dim);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hand-pos {
+    color: var(--text);
+}
+
+.no-detail {
+    color: #666;
+    font-style: italic;
 }
 
 .hand-amount {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     flex-shrink: 0;
     white-space: nowrap;
+    min-width: 60px;
+    text-align: right;
 }
 
 .hand-amount.win { color: var(--win); }
 .hand-amount.loss { color: var(--loss); }
+
+.expand-icon {
+    font-size: 12px;
+    color: var(--text-dim);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+    margin-left: 4px;
+}
+
+.hand-item.expanded .expand-icon {
+    transform: rotate(180deg);
+}
+
+/* 展开后的详情区域 */
+.hand-detail-expand {
+    padding: 0 12px 12px 12px;
+    display: none;
+    border-top: 1px solid var(--panel);
+    margin-top: 4px;
+    padding-top: 10px;
+}
+
+.hand-item.expanded .hand-detail-expand {
+    display: block;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.action-row {
+    padding: 6px 0;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.4;
+    border-bottom: 1px solid var(--panel);
+}
+
+.action-row:last-child {
+    border-bottom: none;
+}
+
+.street {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-dim);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    margin-right: 6px;
+    min-width: 60px;
+    text-align: center;
+}
 
 /* 统计页面 */
 .empty-box {
