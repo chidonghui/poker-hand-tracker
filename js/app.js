@@ -369,10 +369,21 @@ const app = {
                 `;
             }
 
-            // 紧凑摘要行
+            // 紧凑摘要行 - 显示位置+完整牌面
             const position = h.position || '';
-            const flopShort = h.flopCards ? h.flopCards.join('') : '';
-            const summary = position + (flopShort ? ` | ${flopShort}` : '');
+            const flopCards = h.flopCards ? h.flopCards.join('') : '';
+            const turnCard = h.turnCard || '';
+            const riverCard = h.riverCard || '';
+            
+            // 构建牌面显示：Flop/Turn/River
+            let boardDisplay = '';
+            if (flopCards) {
+                boardDisplay = flopCards;
+                if (turnCard) boardDisplay += '/' + turnCard;
+                if (riverCard) boardDisplay += '/' + riverCard;
+            }
+            
+            const summary = position + (boardDisplay ? ` | ${boardDisplay}` : '');
 
             return `
                 <div class="hand-item" data-id="${h.id}">
