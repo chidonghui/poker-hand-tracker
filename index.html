@@ -192,29 +192,44 @@
                 <!-- Flop -->
                 <div class="editor-section">
                     <div class="section-title">Flop</div>
-                    <div class="board-input">
-                        <input type="text" class="card-input" id="flop-1" placeholder="A" maxlength="2">
-                        <input type="text" class="card-input" id="flop-2" placeholder="K" maxlength="2">
-                        <input type="text" class="card-input" id="flop-3" placeholder="Q" maxlength="2">
+                    <div class="board-picker">
+                        <div class="card-slot" data-slot="flop-1" onclick="app.openCardPicker('flop-1')">
+                            <span class="card-rank"></span><span class="card-suit"></span>
+                        </div>
+                        <div class="card-slot" data-slot="flop-2" onclick="app.openCardPicker('flop-2')">
+                            <span class="card-rank"></span><span class="card-suit"></span>
+                        </div>
+                        <div class="card-slot" data-slot="flop-3" onclick="app.openCardPicker('flop-3')">
+                            <span class="card-rank"></span><span class="card-suit"></span>
+                        </div>
                     </div>
+                    <input type="hidden" id="flop-1" data-rank="" data-suit="">
+                    <input type="hidden" id="flop-2" data-rank="" data-suit="">
+                    <input type="hidden" id="flop-3" data-rank="" data-suit="">
                     <input type="text" class="editor-input" id="flop-action" placeholder="例如: Check, BTN bet 5bb, Hero call">
                 </div>
                 
                 <!-- Turn -->
                 <div class="editor-section">
                     <div class="section-title">Turn</div>
-                    <div class="board-input">
-                        <input type="text" class="card-input" id="turn-card" placeholder="T" maxlength="2">
+                    <div class="board-picker">
+                        <div class="card-slot" data-slot="turn-card" onclick="app.openCardPicker('turn-card')">
+                            <span class="card-rank"></span><span class="card-suit"></span>
+                        </div>
                     </div>
+                    <input type="hidden" id="turn-card" data-rank="" data-suit="">
                     <input type="text" class="editor-input" id="turn-action" placeholder="行动描述">
                 </div>
                 
                 <!-- River -->
                 <div class="editor-section">
                     <div class="section-title">River</div>
-                    <div class="board-input">
-                        <input type="text" class="card-input" id="river-card" placeholder="5" maxlength="2">
+                    <div class="board-picker">
+                        <div class="card-slot" data-slot="river-card" onclick="app.openCardPicker('river-card')">
+                            <span class="card-rank"></span><span class="card-suit"></span>
+                        </div>
                     </div>
+                    <input type="hidden" id="river-card" data-rank="" data-suit="">
                     <input type="text" class="editor-input" id="river-action" placeholder="行动描述">
                 </div>
                 

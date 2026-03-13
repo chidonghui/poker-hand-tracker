@@ -342,9 +342,26 @@ const app = {
             let detailHtml = '';
             if (h.position || h.preflop || h.flop || h.turn || h.river) {
                 const preflop = h.preflop ? `<div class="action-row"><span class="street">翻前</span> ${h.preflop}</div>` : '';
-                const flop = h.flop ? `<div class="action-row"><span class="street">Flop ${h.flopCards?.join('') || ''}</span> ${h.flop}</div>` : '';
-                const turn = h.turn ? `<div class="action-row"><span class="street">Turn ${h.turnCard || ''}</span> ${h.turn}</div>` : '';
-                const river = h.river ? `<div class="action-row"><span class="street">River ${h.riverCard || ''}</span> ${h.river}</div>` : '';
+                
+                // Flop显示带花色
+                let flopText = '';
+                if (h.flopCards && h.flopSuits) {
+                    flopText = h.flopCards.map((r, i) => {
+                        const s = h.flopSuits[i];
+                        return r + (s ? {S: '♠', H: '♥', D: '♦', C: '♣'}[s] : '');
+                    }).join('');
+                } else if (h.flopCards) {
+                    flopText = h.flopCards.join('');
+                }
+                const flop = h.flop ? `<div class="action-row"><span class="street">Flop ${flopText}</span> ${h.flop}</div>` : '';
+                
+                // Turn显示带花色
+                const turnText = h.turnCard ? (h.turnCard + (h.turnSuit ? {S: '♠', H: '♥', D: '♦', C: '♣'}[h.turnSuit] : '')) : '';
+                const turn = h.turn ? `<div class="action-row"><span class="street">Turn ${turnText}</span> ${h.turn}</div>` : '';
+                
+                // River显示带花色
+                const riverText = h.riverCard ? (h.riverCard + (h.riverSuit ? {S: '♠', H: '♥', D: '♦', C: '♣'}[h.riverSuit] : '')) : '';
+                const river = h.river ? `<div class="action-row"><span class="street">River ${riverText}</span> ${h.river}</div>` : '';
                 
                 detailHtml = `
                     <div class="hand-detail-expand">
@@ -369,21 +386,32 @@ const app = {
                 `;
             }
 
-            // 紧凑摘要行 - 显示位置+完整牌面
-            const position = h.position || '';
-            const flopCards = h.flopCards ? h.flopCards.join('') : '';
-            const turnCard = h.turnCard || '';
-            const riverCard = h.riverCard || '';
-            
-            // 构建牌面显示：Flop/Turn/River
-            let boardDisplay = '';
-            if (flopCards) {
-                boardDisplay = flopCards;
-                if (turnCard) boardDisplay += '/' + turnCard;
-                if (riverCard) boardDisplay += '/' + riverCard;
-            }
-            
-            const summary = position + (boardDisplay ? ` | ${boardDisplay}` : '');
+        // 紧凑摘要行 - 显示位置+完整牌面（包含花色）
+        const position = h.position || '';
+        
+        // 构建牌面显示（包含花色）：A♠K♥2♦/7♣/4♠
+        let boardDisplay = '';
+        if (h.flopCards && h.flopSuits) {
+            const flopWithSuits = h.flopCards.map((rank, i) => {
+                const suit = h.flopSuits[i];
+                return rank + (suit ? {S: '♠', H: '♥', D: '♦', C: '♣'}[suit] : '');
+            }).join('');
+            boardDisplay = flopWithSuits;
+        } else if (h.flopCards) {
+            boardDisplay = h.flopCards.join('');
+        }
+        
+        if (h.turnCard) {
+            const turnSuit = h.turnSuit ? {S: '♠', H: '♥', D: '♦', C: '♣'}[h.turnSuit] : '';
+            boardDisplay += '/' + h.turnCard + turnSuit;
+        }
+        
+        if (h.riverCard) {
+            const riverSuit = h.riverSuit ? {S: '♠', H: '♥', D: '♦', C: '♣'}[h.riverSuit] : '';
+            boardDisplay += '/' + h.riverCard + riverSuit;
+        }
+        
+        const summary = position + (boardDisplay ? ` | ${boardDisplay}` : '');
 
             return `
                 <div class="hand-item" data-id="${h.id}">
@@ -456,15 +484,24 @@ const app = {
             });
         }
         if (hand.preflop) document.getElementById('preflop-action').value = hand.preflop;
-        if (hand.flopCards) {
-            document.getElementById('flop-1').value = hand.flopCards[0] || '';
-            document.getElementById('flop-2').value = hand.flopCards[1] || '';
-            document.getElementById('flop-3').value = hand.flopCards[2] || '';
+        // 填充Flop牌面显示
+        if (hand.flopCards && hand.flopSuits) {
+            this.updateCardSlot('flop-1', hand.flopCards[0], hand.flopSuits[0]);
+            this.updateCardSlot('flop-2', hand.flopCards[1], hand.flopSuits[1]);
+            this.updateCardSlot('flop-3', hand.flopCards[2], hand.flopSuits[2]);
         }
         if (hand.flop) document.getElementById('flop-action').value = hand.flop;
-        if (hand.turnCard) document.getElementById('turn-card').value = hand.turnCard;
+        
+        // 填充Turn牌面显示
+        if (hand.turnCard && hand.turnSuit) {
+            this.updateCardSlot('turn-card', hand.turnCard, hand.turnSuit);
+        }
         if (hand.turn) document.getElementById('turn-action').value = hand.turn;
-        if (hand.riverCard) document.getElementById('river-card').value = hand.riverCard;
+        
+        // 填充River牌面显示
+        if (hand.riverCard && hand.riverSuit) {
+            this.updateCardSlot('river-card', hand.riverCard, hand.riverSuit);
+        }
         if (hand.river) document.getElementById('river-action').value = hand.river;
         if (hand.note) document.getElementById('hand-note').value = hand.note;
 
@@ -475,19 +512,35 @@ const app = {
     closeEditor() {
         document.getElementById('hand-editor').style.display = 'none';
         this.editingHandId = null;
+        this.currentCardSlot = null;
 
         // 清空表单
         document.querySelectorAll('.pos-btn').forEach(btn => btn.classList.remove('active'));
         document.getElementById('preflop-action').value = '';
-        document.getElementById('flop-1').value = '';
-        document.getElementById('flop-2').value = '';
-        document.getElementById('flop-3').value = '';
+        
+        // 清空牌面选择
+        ['flop-1', 'flop-2', 'flop-3', 'turn-card', 'river-card'].forEach(id => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.value = '';
+                input.dataset.rank = '';
+                input.dataset.suit = '';
+            }
+            const slot = document.querySelector(`[data-slot="${id}"]`);
+            if (slot) {
+                slot.classList.remove('has-card', 'red');
+                slot.querySelector('.card-rank').textContent = '';
+                slot.querySelector('.card-suit').textContent = '';
+            }
+        });
+        
         document.getElementById('flop-action').value = '';
-        document.getElementById('turn-card').value = '';
         document.getElementById('turn-action').value = '';
-        document.getElementById('river-card').value = '';
         document.getElementById('river-action').value = '';
         document.getElementById('hand-note').value = '';
+        
+        // 关闭牌面选择弹窗
+        this.closeCardPicker();
     },
 
     saveEditor() {
@@ -502,16 +555,27 @@ const app = {
 
         // 保存各阶段数据
         hand.preflop = document.getElementById('preflop-action').value;
-        hand.flopCards = [
-            document.getElementById('flop-1').value.toUpperCase(),
-            document.getElementById('flop-2').value.toUpperCase(),
-            document.getElementById('flop-3').value.toUpperCase()
-        ].filter(c => c);
+        
+        // 保存Flop牌面（包含花色）
+        const flop1 = document.getElementById('flop-1');
+        const flop2 = document.getElementById('flop-2');
+        const flop3 = document.getElementById('flop-3');
+        hand.flopCards = [flop1.dataset.rank, flop2.dataset.rank, flop3.dataset.rank].filter(r => r);
+        hand.flopSuits = [flop1.dataset.suit, flop2.dataset.suit, flop3.dataset.suit].filter(s => s);
         hand.flop = document.getElementById('flop-action').value;
-        hand.turnCard = document.getElementById('turn-card').value.toUpperCase();
+        
+        // 保存Turn牌面（包含花色）
+        const turnCard = document.getElementById('turn-card');
+        hand.turnCard = turnCard.dataset.rank;
+        hand.turnSuit = turnCard.dataset.suit;
         hand.turn = document.getElementById('turn-action').value;
-        hand.riverCard = document.getElementById('river-card').value.toUpperCase();
+        
+        // 保存River牌面（包含花色）
+        const riverCard = document.getElementById('river-card');
+        hand.riverCard = riverCard.dataset.rank;
+        hand.riverSuit = riverCard.dataset.suit;
         hand.river = document.getElementById('river-action').value;
+        
         hand.note = document.getElementById('hand-note').value;
         hand.reviewed = true;
 
@@ -614,6 +678,108 @@ const app = {
                 btn.classList.add('active');
             });
         });
+    },
+
+    // 牌面选择相关
+    currentCardSlot: null,
+
+    openCardPicker(slotId) {
+        this.currentCardSlot = slotId;
+        
+        // 创建或显示牌面选择弹窗
+        let popup = document.getElementById('card-picker-popup');
+        if (!popup) {
+            popup = document.createElement('div');
+            popup.id = 'card-picker-popup';
+            popup.className = 'card-picker-popup';
+            popup.innerHTML = `
+                <button class="popup-close" onclick="app.closeCardPicker()">✕</button>
+                <div class="card-picker-title">选择牌面</div>
+                <div class="rank-selector">
+                    ${['A','K','Q','J','T','9','8','7','6','5','4','3','2'].map(r => 
+                        `<button class="rank-btn" data-rank="${r}" onclick="app.selectCardRank('${r}')">${r}</button>`
+                    ).join('')}
+                </div>
+            `;
+            document.body.appendChild(popup);
+        }
+        
+        popup.classList.add('show');
+        
+        // 添加遮罩
+        let overlay = document.getElementById('card-picker-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'card-picker-overlay';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:399;display:none;';
+            overlay.onclick = () => this.closeCardPicker();
+            document.body.appendChild(overlay);
+        }
+        overlay.style.display = 'block';
+    },
+
+    selectCardRank(rank) {
+        // 显示花色选择
+        const popup = document.getElementById('card-picker-popup');
+        popup.innerHTML = `
+            <button class="popup-close" onclick="app.closeCardPicker()">✕</button>
+            <div class="card-picker-title">${rank} - 选择花色</div>
+            <div class="suit-selector">
+                <button class="suit-option" onclick="app.selectCardSuit('S')">♠</button>
+                <button class="suit-option red" onclick="app.selectCardSuit('H')">♥</button>
+                <button class="suit-option red" onclick="app.selectCardSuit('D')">♦</button>
+                <button class="suit-option" onclick="app.selectCardSuit('C')">♣</button>
+            </div>
+        `;
+        this.tempRank = rank;
+    },
+
+    selectCardSuit(suit) {
+        if (this.currentCardSlot && this.tempRank) {
+            this.updateCardSlot(this.currentCardSlot, this.tempRank, suit);
+        }
+        this.closeCardPicker();
+        this.tempRank = null;
+    },
+
+    updateCardSlot(slotId, rank, suit) {
+        const input = document.getElementById(slotId);
+        const slot = document.querySelector(`[data-slot="${slotId}"]`);
+        
+        if (input) {
+            input.dataset.rank = rank || '';
+            input.dataset.suit = suit || '';
+            input.value = rank + suit;
+        }
+        
+        if (slot) {
+            const rankEl = slot.querySelector('.card-rank');
+            const suitEl = slot.querySelector('.card-suit');
+            
+            if (rank && suit) {
+                rankEl.textContent = rank;
+                suitEl.textContent = {S: '♠', H: '♥', D: '♦', C: '♣'}[suit] || '';
+                slot.classList.add('has-card');
+                if (suit === 'H' || suit === 'D') {
+                    slot.classList.add('red');
+                } else {
+                    slot.classList.remove('red');
+                }
+            } else {
+                rankEl.textContent = '';
+                suitEl.textContent = '';
+                slot.classList.remove('has-card', 'red');
+            }
+        }
+    },
+
+    closeCardPicker() {
+        const popup = document.getElementById('card-picker-popup');
+        if (popup) popup.classList.remove('show');
+        const overlay = document.getElementById('card-picker-overlay');
+        if (overlay) overlay.style.display = 'none';
+        this.currentCardSlot = null;
+        this.tempRank = null;
     }
 };
 

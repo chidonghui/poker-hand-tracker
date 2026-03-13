@@ -805,28 +805,148 @@ body {
     border-color: var(--primary);
 }
 
-.board-input {
+.board-picker {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 12px;
 }
 
-.card-input {
+.card-slot {
     width: 50px;
-    height: 50px;
-    text-align: center;
+    height: 70px;
     background: var(--key);
-    border: 1px solid transparent;
+    border: 2px dashed var(--text-dim);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.card-slot:hover {
+    border-color: var(--primary);
+    background: var(--panel);
+}
+
+.card-slot.has-card {
+    background: #fff;
+    border: none;
+}
+
+.card-slot .card-rank {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.card-slot .card-suit {
+    font-size: 24px;
+}
+
+.card-slot.has-card.red .card-rank,
+.card-slot.has-card.red .card-suit {
+    color: #e53935;
+}
+
+.card-slot.has-card:not(.red) .card-rank,
+.card-slot.has-card:not(.red) .card-suit {
+    color: #1a1a2e;
+}
+
+.card-slot:empty::before {
+    content: '+';
+    font-size: 24px;
+    color: var(--text-dim);
+}
+
+/* 花色选择弹窗 - 简化版 */
+.card-picker-popup {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--panel);
+    padding: 20px;
+    border-radius: 20px 20px 0 0;
+    z-index: 400;
+    transform: translateY(100%);
+    transition: transform 0.3s;
+}
+
+.card-picker-popup.show {
+    transform: translateY(0);
+}
+
+.card-picker-title {
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 16px;
+    color: var(--text);
+}
+
+.rank-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.rank-btn {
+    width: 44px;
+    height: 44px;
+    background: var(--key);
+    border: none;
     border-radius: 8px;
     color: var(--text);
     font-size: 16px;
     font-weight: 600;
-    text-transform: uppercase;
+    cursor: pointer;
 }
 
-.card-input:focus {
-    outline: none;
-    border-color: var(--primary);
+.rank-btn:active {
+    background: var(--primary);
+}
+
+.suit-selector {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
+.suit-option {
+    width: 60px;
+    height: 60px;
+    background: var(--key);
+    border: none;
+    border-radius: 12px;
+    font-size: 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.suit-option.red {
+    color: #ff6b6b;
+}
+
+.suit-option:active {
+    background: var(--primary);
+}
+
+.popup-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 24px;
+    cursor: pointer;
 }
 
 .editor-textarea {
