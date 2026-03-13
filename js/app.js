@@ -581,6 +581,7 @@ const app = {
 
         this.saveData();
         this.closeEditor();
+        this.loadReviewData(); // 刷新复盘列表
         this.showToast('✓ 保存成功');
     },
 
