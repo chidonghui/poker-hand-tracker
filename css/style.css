@@ -567,6 +567,38 @@ body {
     text-align: center;
 }
 
+/* 阶段标签 - 方块按钮样式 */
+.stage-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stage-badge.preflop {
+    background: #4a5568;
+    color: #e2e8f0;
+}
+
+.stage-badge.flop {
+    background: #3182ce;
+    color: #bee3f8;
+}
+
+.stage-badge.turn {
+    background: #dd6b20;
+    color: #feebc8;
+}
+
+.stage-badge.river {
+    background: #38a169;
+    color: #c6f6d5;
+}
+
 .no-actions-tip {
     text-align: center;
     padding: 20px;

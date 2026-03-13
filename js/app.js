@@ -341,7 +341,7 @@ const app = {
             // 构建展开后的详细行动
             let detailHtml = '';
             if (h.position || h.preflop || h.flop || h.turn || h.river) {
-                const preflop = h.preflop ? `<div class="action-row"><span class="street">翻前</span> ${h.preflop}</div>` : '';
+                const preflop = h.preflop ? `<div class="action-row"><span class="stage-badge preflop">PREFLOP</span> ${h.preflop}</div>` : '';
                 
                 // Flop显示带彩色花色
                 let flopText = '';
@@ -355,7 +355,7 @@ const app = {
                 } else if (h.flopCards) {
                     flopText = h.flopCards.join('');
                 }
-                const flop = h.flop ? `<div class="action-row"><span class="street">Flop ${flopText}</span> ${h.flop}</div>` : '';
+                const flop = h.flop ? `<div class="action-row"><span class="stage-badge flop">FLOP ${flopText}</span> ${h.flop}</div>` : '';
                 
                 // Turn显示带彩色花色
                 let turnText = '';
@@ -366,7 +366,7 @@ const app = {
                 } else if (h.turnCard) {
                     turnText = h.turnCard;
                 }
-                const turn = h.turn ? `<div class="action-row"><span class="street">Turn ${turnText}</span> ${h.turn}</div>` : '';
+                const turn = h.turn ? `<div class="action-row"><span class="stage-badge turn">TURN ${turnText}</span> ${h.turn}</div>` : '';
                 
                 // River显示带彩色花色
                 let riverText = '';
@@ -377,7 +377,7 @@ const app = {
                 } else if (h.riverCard) {
                     riverText = h.riverCard;
                 }
-                const river = h.river ? `<div class="action-row"><span class="street">River ${riverText}</span> ${h.river}</div>` : '';
+                const river = h.river ? `<div class="action-row"><span class="stage-badge river">RIVER ${riverText}</span> ${h.river}</div>` : '';
                 
                 detailHtml = `
                     <div class="hand-detail-expand">
