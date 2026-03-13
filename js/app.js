@@ -338,40 +338,40 @@ const app = {
                 `;
             }).join('');
 
-            // 构建行动描述HTML
-            let actionsHtml = '';
-            if (h.position || h.preflop || h.flop || h.turn || h.river) {
-                const position = h.position || '未知位置';
-                const preflop = h.preflop ? `翻前: ${h.preflop}` : '';
-                const flop = h.flop ? `Flop ${h.flopCards?.join('') || ''}: ${h.flop}` : '';
-                const turn = h.turn ? `Turn ${h.turnCard || ''}: ${h.turn}` : '';
-                const river = h.river ? `River ${h.riverCard || ''}: ${h.river}` : '';
-                
-                actionsHtml = `
-                    <div class="hand-actions">
-                        <div class="action-line"><span class="pos-tag">${position}</span> ${preflop}</div>
-                        ${flop ? `<div class="action-line">${flop}</div>` : ''}
-                        ${turn ? `<div class="action-line">${turn}</div>` : ''}
-                        ${river ? `<div class="action-line">${river}</div>` : ''}
-                    </div>
-                `;
+            // 紧凑的一行显示：位置 + Flop + 结果
+            let compactInfo = '';
+            if (h.position) {
+                const flopCards = h.flopCards ? h.flopCards.join('') : '';
+                const flopShort = flopCards ? ` | ${flopCards}` : '';
+                compactInfo = `<span class="pos-tag-compact">${h.position}</span>${flopShort}`;
             }
 
             return `
                 <div class="hand-row" data-id="${h.id}">
                     <div class="hand-cards-small">${cardsHtml}</div>
-                    <div class="hand-detail">
-                        <div class="hand-type">${h.handName}</div>
-                        <div class="hand-time">${time}</div>
-                        ${actionsHtml}
+                    <div class="hand-detail-compact">
+                        <div class="hand-line">
+                            <span class="hand-name">${h.handName}</span>
+                            <span class="hand-time-compact">${time}</span>
+                        </div>
+                        <div class="hand-line">
+                            ${compactInfo}
+                        </div>
                     </div>
                     <div class="hand-amount ${h.amount >= 0 ? 'win' : 'loss'}">
                         ${h.amount >= 0 ? '+' : ''}${h.amount}
                     </div>
-                    <button class="btn-edit" onclick="app.openEditor(${h.id})">编辑</button>
                 </div>
             `;
         }).join('');
+
+        // 绑定点击事件
+        container.querySelectorAll('.hand-row').forEach(row => {
+            row.addEventListener('click', () => {
+                const id = parseInt(row.dataset.id);
+                this.openEditor(id);
+            });
+        });
     },
 
     // 编辑功能

@@ -381,7 +381,7 @@ body {
     color: white;
 }
 
-/* 手牌列表 */
+/* 手牌列表 - 紧凑单行显示 */
 .hand-list {
     flex: 1;
     overflow-y: auto;
@@ -395,11 +395,17 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
+    cursor: pointer;
+}
+
+.hand-row:active {
+    background: var(--key-active);
 }
 
 .hand-cards-small {
     display: flex;
     gap: 6px;
+    flex-shrink: 0;
 }
 
 .mini-card {
@@ -414,6 +420,7 @@ body {
     color: #1a1a2e;
     font-size: 12px;
     font-weight: 700;
+    flex-shrink: 0;
 }
 
 .mini-card.red {
@@ -424,55 +431,53 @@ body {
     font-size: 14px;
 }
 
-.hand-detail {
+.hand-detail-compact {
     flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.hand-type {
+.hand-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+}
+
+.hand-name {
     font-size: 14px;
     font-weight: 600;
+    color: var(--text);
 }
 
-.hand-time {
+.hand-time-compact {
     font-size: 11px;
     color: var(--text-dim);
+    flex-shrink: 0;
+}
+
+.pos-tag-compact {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
 }
 
 .hand-amount {
     font-size: 16px;
     font-weight: 700;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .hand-amount.win { color: var(--win); }
 .hand-amount.loss { color: var(--loss); }
-
-/* 手牌行动详情 */
-.hand-actions {
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid var(--key);
-    font-size: 12px;
-    color: var(--text-dim);
-    line-height: 1.6;
-}
-
-.action-line {
-    margin-bottom: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.pos-tag {
-    display: inline-block;
-    background: var(--primary);
-    color: white;
-    padding: 1px 6px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 600;
-    margin-right: 4px;
-}
 
 /* 统计页面 */
 .empty-box {
