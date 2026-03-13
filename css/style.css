@@ -42,9 +42,64 @@ body {
     display: none;
     flex: 1;
     padding: 10px 12px;
-    padding-bottom: 80px; /* 增加底部padding，避免被导航栏遮挡 */
+    padding-bottom: 80px;
     overflow-y: auto;
-    min-height: 0; /* 确保flex子项可以收缩 */
+    min-height: 0;
+}
+
+.page.active {
+    display: flex;
+    flex-direction: column;
+}
+
+/* 记录页面特殊布局 - 确保保存按钮可见 */
+#record-page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-bottom: 70px;
+}
+
+#record-page .page-title {
+    flex-shrink: 0;
+    height: 30px;
+    margin-bottom: 8px;
+}
+
+#record-page .stats-bar {
+    flex-shrink: 0;
+    height: 65px;
+    margin-bottom: 8px;
+}
+
+#record-page .input-box {
+    flex-shrink: 0;
+    margin-bottom: 8px;
+}
+
+/* 键盘区域 - 固定高度，不占用保存按钮空间 */
+#record-page .keypad {
+    flex: 0 0 auto;
+    height: 280px;
+    min-height: 240px;
+    max-height: 320px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#record-page .key-line {
+    flex: 1;
+    min-height: 50px;
+    max-height: 70px;
+}
+
+/* 保存按钮 - 固定在键盘下方 */
+#record-page .btn-save {
+    flex-shrink: 0;
+    height: 48px;
+    margin-bottom: 8px;
 }
 
 .page.active {
