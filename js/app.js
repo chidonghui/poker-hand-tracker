@@ -477,6 +477,7 @@ const app = {
                         ${river}
                         <div class="edit-btn-row">
                             <button class="btn-edit-inline" onclick="event.stopPropagation(); app.openEditor(${h.id})">编辑牌谱</button>
+                            <button class="btn-ai-inline" onclick="event.stopPropagation(); app.quickAIReview(${h.id})">🤖 AI复盘</button>
                         </div>
                     </div>
                 `;
@@ -487,6 +488,7 @@ const app = {
                         <div class="no-actions-tip">暂无详细记录</div>
                         <div class="edit-btn-row">
                             <button class="btn-edit-inline" onclick="event.stopPropagation(); app.openEditor(${h.id})">录入牌谱</button>
+                            <button class="btn-ai-inline" onclick="event.stopPropagation(); app.quickAIReview(${h.id})">🤖 AI复盘</button>
                         </div>
                     </div>
                 `;
@@ -924,7 +926,153 @@ const app = {
         }
     },
 
-    closeCardPicker() {
+    // ========== 快速AI复盘（不打开编辑器） ==========
+    quickAIReview(handId) {
+        const hand = this.data.hands.find(h => h.id === handId);
+        if (!hand) return;
+        
+        const modal = document.getElementById('ai-modal');
+        const loading = document.getElementById('ai-loading');
+        const result = document.getElementById('ai-result');
+        
+        modal.style.display = 'flex';
+        loading.style.display = 'flex';
+        result.style.display = 'none';
+        
+        // 使用手牌数据生成分析
+        setTimeout(() => {
+            const analysis = this.generateAIAnalysisForHand(hand);
+            result.innerHTML = analysis;
+            loading.style.display = 'none';
+            result.style.display = 'block';
+        }, 800);
+    },
+    
+    // 为指定手牌生成AI分析
+    generateAIAnalysisForHand(hand) {
+        const amount = hand.amount || 0;
+        const position = hand.position || '';
+        const cards = hand.cards || [];
+        const action = hand.action || '';
+        
+        // 计算基础评分
+        let score = 5;
+        let scoreClass = 'medium';
+        let scoreLabel = '标准';
+        
+        if (amount > 0) {
+            score = Math.min(7 + Math.floor(amount / 10000), 10);
+            scoreLabel = '盈利';
+            scoreClass = score >= 8 ? 'good' : 'medium';
+        } else if (amount < 0) {
+            score = Math.max(3 - Math.floor(Math.abs(amount) / 10000), 1);
+            scoreClass = 'poor';
+            scoreLabel = '亏损';
+        }
+        
+        // 判断手牌类型
+        const isPocketPair = cards.length === 2 && cards[0].rank === cards[1].rank;
+        const isSuited = cards.length === 2 && cards[0].suit === cards[1].suit;
+        const isConnected = cards.length === 2 && 
+            Math.abs(this.getRankValue(cards[0].rank) - this.getRankValue(cards[1].rank)) === 1;
+        
+        // 生成HTML
+        let html = '';
+        
+        // 手牌信息
+        html += '<div class="ai-hand-info">';
+        html += '<div class="ai-hand-cards">';
+        cards.forEach(card => {
+            const isRed = card.suit === 'H' || card.suit === 'D';
+            const suitSymbol = {S: '♠', H: '♥', D: '♦', C: '♣'}[card.suit];
+            html += `<div class="ai-mini-card ${isRed ? 'red' : 'black'}">${card.rank}${suitSymbol}</div>`;
+        });
+        html += '</div>';
+        html += '<div><div class="ai-hand-name">' + hand.handName + '</div>';
+        if (position) html += '<span style="color:var(--primary);font-size:12px;">' + position + '</span>';
+        if (action) html += ' | <span style="color:#fbbf24;font-size:12px;">' + action + '</span>';
+        html += '</div></div>';
+        
+        // GTO评分
+        html += '<div class="ai-score">';
+        html += `<div class="ai-score-value ${scoreClass}">${score}/10</div>`;
+        html += `<div class="ai-score-label">${scoreLabel}</div>`;
+        html += '</div>';
+        
+        // 手牌特征
+        html += '<h3>🎴 手牌特征</h3>';
+        
+        if (isPocketPair) {
+            html += '<div class="ai-suggestion">';
+            html += '<span class="ai-suggestion-label strategy">对子</span>';
+            html += '<div class="ai-suggestion-text">口袋对子，翻后有set mining价值，注意底池赔率</div>';
+            html += '</div>';
+        }
+        
+        if (isSuited) {
+            html += '<div class="ai-suggestion">';
+            html += '<span class="ai-suggestion-label opportunity">同花</span>';
+            html += '<div class="ai-suggestion-text">同花结构牌，翻后有成花潜力，适合 IP 3B</div>';
+            html += '</div>';
+        }
+        
+        if (isConnected) {
+            html += '<div class="ai-suggestion">';
+            html += '<span class="ai-suggestion-label info">连张</span>';
+            html += '<div class="ai-suggestion-text">连张牌型，有顺子听牌潜力</div>';
+            html += '</div>';
+        }
+        
+        // 位置分析
+        if (position) {
+            html += '<h3>📍 位置分析</h3>';
+            
+            const earlyPositions = ['UTG', 'UTG+1', 'UTG+2', 'MP'];
+            const latePositions = ['CO', 'BTN'];
+            
+            if (earlyPositions.includes(position)) {
+                if (!isPocketPair && cards[0] && this.getRankValue(cards[0].rank) < 12) {
+                    html += '<div class="ai-suggestion">';
+                    html += '<span class="ai-suggestion-label warning">位置</span>';
+                    html += '<div class="ai-suggestion-text">前位入池手牌偏弱，建议收紧范围到88+/AQs+/AK</div>';
+                    html += '</div>';
+                } else {
+                    html += '<div class="ai-suggestion">';
+                    html += '<span class="ai-suggestion-label info">位置</span>';
+                    html += '<div class="ai-suggestion-text">前位 open，确保手牌质量足够</div>';
+                    html += '</div>';
+                }
+            } else if (latePositions.includes(position)) {
+                html += '<div class="ai-suggestion">';
+                html += '<span class="ai-suggestion-label opportunity">位置</span>';
+                html += '<div class="ai-suggestion-text">后位有位置优势，可以更激进地3B隔离</div>';
+                html += '</div>';
+            }
+        }
+        
+        // 结果分析
+        if (amount > 30000) {
+            html += '<h3>🎉 关键胜利</h3>';
+            html += '<div class="ai-suggestion">';
+            html += '<span class="ai-suggestion-label opportunity">大胜</span>';
+            html += '<div class="ai-suggestion-text">这手牌盈利显著！回顾关键决策，总结可复制的手感</div>';
+            html += '</div>';
+        } else if (amount < -20000) {
+            html += '<h3>⚠️ 大额亏损</h3>';
+            html += '<div class="ai-error">';
+            html += '<div class="ai-error-street">总结</div>';
+            html += '<div class="ai-error-text">大额亏损手牌，建议点击"编辑牌谱"详细记录心路历程，检查是否存在Tilt、位置劣势或范围错误</div>';
+            html += '</div>';
+        }
+        
+        return html;
+    },
+    
+    // 获取牌面数值
+    getRankValue(rank) {
+        const values = { 'A': 14, 'K': 13, 'Q': 12, 'J': 11, 'T': 10 };
+        return values[rank] || parseInt(rank) || 0;
+    },
         const popup = document.getElementById('card-picker-popup');
         if (popup) popup.classList.remove('show');
         const overlay = document.getElementById('card-picker-overlay');
