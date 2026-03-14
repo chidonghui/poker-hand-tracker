@@ -126,6 +126,29 @@ const app = {
 
     showSuitPopup(rank) {
         this.data.tempRank = rank;
+        
+        // 获取已选的牌（用于防重复选择）
+        const currentInput = this.data.currentInput;
+        const matches = currentInput.match(/[AKQJT2-9][shdc]?/gi) || [];
+        const selectedCards = matches.map(m => m.toUpperCase());
+        
+        // 更新花色弹窗按钮状态
+        const suitBtns = document.querySelectorAll('.suit-btn');
+        suitBtns.forEach(btn => {
+            const suit = btn.dataset.suit.toUpperCase();
+            const cardCombo = rank + suit;
+            // 如果这张牌已经选过，禁用按钮
+            if (selectedCards.includes(cardCombo)) {
+                btn.disabled = true;
+                btn.style.opacity = '0.3';
+                btn.style.cursor = 'not-allowed';
+            } else {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+            }
+        });
+        
         document.getElementById('suit-popup').style.display = 'block';
         document.getElementById('popup-overlay').style.display = 'block';
     },
@@ -136,9 +159,67 @@ const app = {
         document.getElementById('popup-overlay').style.display = 'none';
     },
 
+    // 手牌输入格式校验
+    validateHandInput(input) {
+        const result = { valid: false, message: '' };
+        
+        // 1. 检查是否有输入
+        if (!input || input.trim() === '') {
+            result.message = '请输入手牌信息';
+            return result;
+        }
+        
+        // 2. 检查是否有两张牌（格式：牌+花色 牌+花色）
+        const cardMatches = input.match(/[AKQJT2-9][shdc]/gi);
+        if (!cardMatches || cardMatches.length < 2) {
+            // 检查缺少什么
+            const rankMatches = input.match(/[AKQJT2-9]/gi);
+            if (!rankMatches || rankMatches.length === 0) {
+                result.message = '缺少：手牌（如A、K、Q等）';
+            } else if (rankMatches.length === 1) {
+                result.message = '缺少：第二张手牌';
+            } else {
+                // 有两张牌但没有花色
+                result.message = '缺少：手牌花色（s=黑桃,h=红心,d=方块,c=梅花）';
+            }
+            return result;
+        }
+        
+        // 3. 检查是否有盈亏符号和数额
+        const amountMatch = input.match(/([+-])([AKQJT0-9]+)$/);
+        if (!amountMatch) {
+            // 检查具体缺少什么
+            if (!input.match(/[+-]/)) {
+                result.message = '缺少：盈亏符号（+表示赢，-表示输）';
+            } else {
+                result.message = '缺少：盈亏数额（数字）';
+            }
+            return result;
+        }
+        
+        // 4. 检查两张牌是否重复
+        const cards = cardMatches.slice(0, 2).map(c => c.toUpperCase());
+        if (cards[0] === cards[1]) {
+            result.message = '错误：两张牌重复（' + cards[0] + '）';
+            return result;
+        }
+        
+        result.valid = true;
+        return result;
+    },
+
     saveHand() {
+        const currentInput = this.data.currentInput;
+        
+        // 格式校验：检查输入是否符合 "牌+花色 牌+花色 +或-数额" 格式
+        const validation = this.validateHandInput(currentInput);
+        if (!validation.valid) {
+            this.showToast('❌ ' + validation.message, 3000);
+            return;
+        }
+
         const cards = [];
-        const matches = this.data.currentInput.match(/[AKQJT2-9][shdc]?/gi) || [];
+        const matches = currentInput.match(/[AKQJT2-9][shdc]?/gi) || [];
 
         for (const match of matches.slice(0, 2)) {
             const rank = match[0].toUpperCase();
@@ -146,13 +227,8 @@ const app = {
             cards.push({ rank, suit });
         }
 
-        if (cards.length < 2) {
-            this.showToast('请输入两张手牌');
-            return;
-        }
-
         let amount = 0;
-        const amountMatch = this.data.currentInput.match(/([+-])([AKQJT0-9]+)$/);
+        const amountMatch = currentInput.match(/([+-])([AKQJT0-9]+)$/);
         if (amountMatch) {
             for (const char of amountMatch[2]) {
                 if (char === 'A') amount = amount * 10 + 1;
@@ -191,24 +267,38 @@ const app = {
         this.showToast('✓ 记录成功');
     },
 
-    showToast(message) {
+    showToast(message, duration = 1500) {
+        // 移除现有的toast
+        const existingToast = document.querySelector('.toast-message');
+        if (existingToast) existingToast.remove();
+        
+        // 根据消息类型判断颜色
+        const isSuccess = message.includes('✓') || message.includes('成功');
+        const bgColor = isSuccess ? 'rgba(74, 222, 128, 0.95)' : 'rgba(248, 113, 113, 0.95)';
+        const textColor = isSuccess ? '#000' : '#fff';
+        
         const toast = document.createElement('div');
+        toast.className = 'toast-message';
         toast.style.cssText = `
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(74, 222, 128, 0.95);
-            color: #000;
-            padding: 16px 32px;
+            background: ${bgColor};
+            color: ${textColor};
+            padding: 16px 24px;
             border-radius: 12px;
             z-index: 300;
-            font-size: 16px;
-            font-weight: 600;
+            font-size: 15px;
+            font-weight: 500;
+            text-align: center;
+            max-width: 80%;
+            word-wrap: break-word;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         `;
         toast.textContent = message;
         document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 1500);
+        setTimeout(() => toast.remove(), duration);
     },
 
     // 复盘页面功能
