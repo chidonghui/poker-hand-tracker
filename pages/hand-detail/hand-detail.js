@@ -89,20 +89,40 @@ Page({
     }
   },
 
-  // 解析 Flop (3张牌)
+  // 解析 Flop (3张牌)，带重复校验
   parseFlop(input) {
     if (!input || input.length < 6) return []
     
     const cards = []
+    const seen = new Set() // 用于检测重复
     const cleanInput = input.replace(/\s/g, '').toLowerCase()
     
     for (let i = 0; i < cleanInput.length && cards.length < 3; i += 2) {
       const cardStr = cleanInput.substr(i, 2)
       const card = this.parseCard(cardStr)
-      if (card) cards.push(card)
+      if (card) {
+        const cardKey = card.rank + card.suit
+        // 检查是否重复
+        if (seen.has(cardKey)) {
+          wx.showToast({
+            title: `重复：${card.rank}${this.getSuitSymbol(card.suit)}`,
+            icon: 'none',
+            duration: 2000
+          })
+          return cards // 返回已解析的不重复牌
+        }
+        seen.add(cardKey)
+        cards.push(card)
+      }
     }
     
     return cards
+  },
+  
+  // 获取花色符号
+  getSuitSymbol(suit) {
+    const symbols = { 'S': '♠', 'H': '♥', 'D': '♦', 'C': '♣' }
+    return symbols[suit] || suit
   },
 
   onFlopInput(e) {
@@ -117,6 +137,42 @@ Page({
   onTurnInput(e) {
     const value = e.detail.value
     const parsed = this.parseCard(value)
+    
+    // 检查是否和 Flop 重复
+    if (parsed) {
+      const cardKey = parsed.rank + parsed.suit
+      const flopCards = this.data.parsedFlop || []
+      const isDuplicateInFlop = flopCards.some(c => c.rank + c.suit === cardKey)
+      
+      if (isDuplicateInFlop) {
+        wx.showToast({
+          title: `已在Flop：${parsed.rank}${this.getSuitSymbol(parsed.suit)}`,
+          icon: 'none',
+          duration: 2000
+        })
+        this.setData({
+          turnInput: '',
+          parsedTurn: {}
+        })
+        return
+      }
+      
+      // 检查是否和 River 重复
+      const riverCard = this.data.parsedRiver
+      if (riverCard && riverCard.rank && riverCard.rank + riverCard.suit === cardKey) {
+        wx.showToast({
+          title: `已在River：${parsed.rank}${this.getSuitSymbol(parsed.suit)}`,
+          icon: 'none',
+          duration: 2000
+        })
+        this.setData({
+          turnInput: '',
+          parsedTurn: {}
+        })
+        return
+      }
+    }
+    
     this.setData({
       turnInput: value,
       parsedTurn: parsed || {}
@@ -126,6 +182,42 @@ Page({
   onRiverInput(e) {
     const value = e.detail.value
     const parsed = this.parseCard(value)
+    
+    // 检查是否和 Flop 重复
+    if (parsed) {
+      const cardKey = parsed.rank + parsed.suit
+      const flopCards = this.data.parsedFlop || []
+      const isDuplicateInFlop = flopCards.some(c => c.rank + c.suit === cardKey)
+      
+      if (isDuplicateInFlop) {
+        wx.showToast({
+          title: `已在Flop：${parsed.rank}${this.getSuitSymbol(parsed.suit)}`,
+          icon: 'none',
+          duration: 2000
+        })
+        this.setData({
+          riverInput: '',
+          parsedRiver: {}
+        })
+        return
+      }
+      
+      // 检查是否和 Turn 重复
+      const turnCard = this.data.parsedTurn
+      if (turnCard && turnCard.rank && turnCard.rank + turnCard.suit === cardKey) {
+        wx.showToast({
+          title: `已在Turn：${parsed.rank}${this.getSuitSymbol(parsed.suit)}`,
+          icon: 'none',
+          duration: 2000
+        })
+        this.setData({
+          riverInput: '',
+          parsedRiver: {}
+        })
+        return
+      }
+    }
+    
     this.setData({
       riverInput: value,
       parsedRiver: parsed || {}
