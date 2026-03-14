@@ -941,15 +941,207 @@ const app = {
 
         // 使用手牌数据生成分析
         setTimeout(() => {
-            const analysis = this.generateAIAnalysisForHand(hand);
+            const analysis = this.generateProAnalysis(hand);
             result.innerHTML = analysis;
             loading.style.display = 'none';
             result.style.display = 'block';
-        }, 800);
+        }, 600);
+    },
+    
+    // 关闭AI复盘弹窗
+    hideAIReview() {
+        const modal = document.getElementById('ai-modal');
+        if (modal) modal.style.display = 'none';
     },
 
-    // 为指定手牌生成AI分析
-    generateAIAnalysisForHand(hand) {
+    // ========== 专业级AI分析 ==========
+    generateProAnalysis(hand) {
+        const amount = hand.amount || 0;
+        const position = hand.position || '';
+        const cards = hand.cards || [];
+        const action = hand.action || '';
+        const preflop = hand.preflop || '';
+        const flop = hand.flop || '';
+        const turn = hand.turn || '';
+        const river = hand.river || '';
+        
+        // 基础数据
+        const isPocketPair = cards.length === 2 && cards[0]?.rank === cards[1]?.rank;
+        const isSuited = cards.length === 2 && cards[0]?.suit === cards[1]?.suit;
+        const highCard = cards[0]?.rank || '';
+        const lowCard = cards[1]?.rank || '';
+        
+        // GTO范围定义
+        const gtoRanges = {
+            'UTG': { open: '77+, AJo+, ATs+, KQs', rfi: '18%' },
+            'MP': { open: '66+, ATo+, A9s+, KJo+, KTs+, QJs', rfi: '22%' },
+            'HJ': { open: '55+, A9o+, A5s+, KTo+, K9s+, QJo, QTs, JTs', rfi: '28%' },
+            'CO': { open: '22+, A2o+, A2s+, K9o+, K7s+, Q9o+, Q8s+, J9o+, J8s+, T8s+, 98s, 87s, 76s', rfi: '35%' },
+            'BTN': { open: '22+, A2o+, A2s+, K2o+, K2s+, Q2o+, Q4s+, J5o+, J6s+, T6o+, T7s+, 96o+, 98s, 85o+, 87s, 75o+, 76s, 64o+, 65s, 54s', rfi: '50%' },
+            'SB': { open: '77+, A9o+, A8s+, KJo+, KTs+, QJo, QTs, JTs (vs BB 可以极化)', rfi: '40%' }
+        };
+        
+        // 位置分级
+        const earlyPos = ['UTG', 'UTG+1', 'UTG+2', 'MP'];
+        const latePos = ['CO', 'BTN'];
+        const isEarly = earlyPos.includes(position);
+        const isLate = latePos.includes(position);
+        
+        let html = '';
+        
+        // ===== 头部：手牌信息 =====
+        html += `<div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:16px;border-radius:12px;margin-bottom:16px;">`;
+        html += `<div style="display:flex;align-items:center;gap:12px;">`;
+        html += `<div style="display:flex;gap:6px;">`;
+        cards.forEach(c => {
+            const isRed = c.suit === 'H' || c.suit === 'D';
+            const suit = {S:'♠',H:'♥',D:'♦',C:'♣'}[c.suit];
+            html += `<div style="width:40px;height:56px;background:#fff;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;color:${isRed?'#e53935':'#212121'}">${c.rank}${suit}</div>`;
+        });
+        html += `</div>`;
+        html += `<div><div style="font-size:20px;font-weight:700;color:#fff">${hand.handName}</div>`;
+        html += `<div style="font-size:13px;color:rgba(255,255,255,0.8)">${position || '未记录位置'} ${action ? '| ' + action : ''}</div>`;
+        html += `</div></div></div>`;
+        
+        // ===== 模块1：翻前范围分析 =====
+        html += `<div style="background:rgba(102,126,234,0.1);padding:14px;border-radius:10px;margin-bottom:12px;">`;
+        html += `<div style="font-size:15px;font-weight:700;color:#667eea;margin-bottom:10px">📊 翻前范围分析</div>`;
+        
+        if (position && gtoRanges[position]) {
+            const range = gtoRanges[position];
+            html += `<div style="font-size:13px;color:var(--text);margin-bottom:8px"><b>${position} GTO Open Range (${range.rfi}):</b> ${range.open}</div>`;
+            
+            // 检查手牌是否在范围内
+            const handInRange = this.checkHandInRange(hand.handName, position);
+            if (handInRange) {
+                html += `<div style="font-size:13px;color:#4ade80;background:rgba(74,222,128,0.1);padding:8px 12px;border-radius:6px;">✅ 你的手牌在GTO范围内</div>`;
+            } else {
+                html += `<div style="font-size:13px;color:#f87171;background:rgba(248,113,113,0.1);padding:8px 12px;border-radius:6px;">⚠️ 你的手牌偏${isEarly ? '松' : '离群'}，建议收紧到${range.rfi}范围</div>`;
+            }
+        } else {
+            html += `<div style="font-size:13px;color:var(--text-dim)">未记录位置，无法判断范围合理性</div>`;
+        }
+        html += `</div>`;
+        
+        // ===== 模块2：关键决策点检查 =====
+        html += `<div style="background:var(--surface);padding:14px;border-radius:10px;margin-bottom:12px;">`;
+        html += `<div style="font-size:15px;font-weight:700;color:var(--primary);margin-bottom:10px">🎯 关键决策点</div>`;
+        
+        const issues = [];
+        
+        // 检查1：前位手牌质量
+        if (isEarly && !isPocketPair) {
+            const highVal = this.getRankValue(highCard);
+            if (highVal < 12) {
+                issues.push({
+                    street: '翻前',
+                    issue: `${position}位置用${highCard}${lowCard}入池偏松`,
+                    fix: '前位建议只玩88+/AQs+/AK，减少边缘牌损失'
+                });
+            }
+        }
+        
+        // 检查2：IP是否漏价值
+        if (isLate && amount > 0 && !flop.includes('bet') && !turn.includes('bet')) {
+            issues.push({
+                street: '翻后',
+                issue: '后位有优势但未持续施压',
+                fix: 'IP有范围优势时应高频率cbet 1/3-2/3底池'
+            });
+        }
+        
+        // 检查3：OOP过于被动
+        if ((position === 'SB' || position === 'BB') && amount < -5000 && preflop.includes('call')) {
+            issues.push({
+                street: '翻前',
+                issue: '盲位跟注3B范围可能过宽',
+                fix: '盲位防御范围建议：TT-22, AQo-ATo, AJs-A2s, KQs-KTs, QJs'
+            });
+        }
+        
+        // 检查4：大额亏损
+        if (amount < -20000) {
+            issues.push({
+                street: '总结',
+                issue: `亏损${Math.abs(amount)}，可能涉及Tilt或cooler`,
+                fix: '检查：是否情绪失控？是否被bad beat后报复性入池？对手是否特定针对你？'
+            });
+        }
+        
+        if (issues.length === 0) {
+            html += `<div style="font-size:13px;color:#4ade80">✓ 暂无显著偏离点，保持当前策略</div>`;
+        } else {
+            issues.forEach((item, i) => {
+                html += `<div style="margin-bottom:10px;padding:10px;background:rgba(248,113,113,0.1);border-left:3px solid #f87171;border-radius:6px;">`;
+                html += `<div style="font-size:11px;color:#f87171;font-weight:600">${item.street}</div>`;
+                html += `<div style="font-size:13px;color:var(--text);margin:4px 0">${item.issue}</div>`;
+                html += `<div style="font-size:12px;color:var(--text-dim);background:var(--bg);padding:8px;border-radius:4px">💡 ${item.fix}</div>`;
+                html += `</div>`;
+            });
+        }
+        html += `</div>`;
+        
+        // ===== 模块3：权益分析 =====
+        if (isPocketPair || isSuited || this.getRankValue(highCard) >= 12) {
+            html += `<div style="background:rgba(139,92,246,0.1);padding:14px;border-radius:10px;margin-bottom:12px;">`;
+            html += `<div style="font-size:15px;font-weight:700;color:#8b5cf6;margin-bottom:10px">🔢 权益估算</div>`;
+            
+            // 估算vs随机范围权益
+            let equity = 'N/A';
+            let playability = '';
+            
+            if (isPocketPair) {
+                const pairVal = this.getRankValue(highCard);
+                if (pairVal >= 10) { equity = '~77%'; playability = '强牌，可以3B/4B价值'; }
+                else if (pairVal >= 7) { equity = '~71%'; playability = '中中对，set mining价值'; }
+                else { equity = '~63%'; playability = '小对子，注意 implied odds'; }
+            } else if (highCard === 'A') {
+                if (isSuited) { equity = '~65%'; playability = '同花Axs有坚果潜力'; }
+                else { equity = '~62%'; playability = '非同花A注意kicker强度'; }
+            } else if (isSuited && this.getRankValue(highCard) >= 10 && Math.abs(this.getRankValue(highCard) - this.getRankValue(lowCard)) === 1) {
+                equity = '~60%'; playability = '同花连张，翻后可玩性高';
+            }
+            
+            if (equity !== 'N/A') {
+                html += `<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">`;
+                html += `<span>vs 随机范围权益: <b>${equity}</b></span>`;
+                html += `</div>`;
+                html += `<div style="font-size:12px;color:var(--text-dim)">${playability}</div>`;
+            }
+            html += `</div>`;
+        }
+        
+        // ===== 模块4：结果评估 =====
+        html += `<div style="background:${amount >= 0 ? 'rgba(74,222,128,0.1)' : 'rgba(248,113,113,0.1)'};padding:14px;border-radius:10px;">`;
+        html += `<div style="font-size:15px;font-weight:700;color:${amount >= 0 ? '#4ade80' : '#f87171'};margin-bottom:8px">${amount >= 0 ? '📈 盈利分析' : '📉 亏损复盘'}</div>`;
+        html += `<div style="font-size:24px;font-weight:800;color:${amount >= 0 ? '#4ade80' : '#f87171'}">${amount >= 0 ? '+' : ''}${amount}</div>`;
+        
+        if (amount > 30000) {
+            html += `<div style="font-size:13px;color:var(--text);margin-top:8px">🎯 大胜手牌。重点复盘：对手范围判断？价值下注size选择？是否有更好的allin时机？</div>`;
+        } else if (amount < -10000) {
+            html += `<div style="font-size:13px;color:var(--text);margin-top:8px">⚠️ 大额损失。必须复盘：是cooler unavoidable还是决策错误？是否有更好的弃牌点？</div>`;
+        } else {
+            html += `<div style="font-size:13px;color:var(--text);margin-top:8px">💭 常规波动。建议记录关键决策点，长期样本量不足时不过度解读。</div>`;
+        }
+        html += `</div>`;
+        
+        return html;
+    },
+    
+    // 检查手牌是否在GTO范围内
+    checkHandInRange(handName, position) {
+        const gtoRanges = {
+            'UTG': /^(AA|KK|QQ|JJ|TT|99|88|77|AK|AQ|AJ|AT|KQ|KJ)/,
+            'MP': /^(AA|KK|QQ|JJ|TT|99|88|77|66|AK|AQ|AJ|AT|A9|KQ|KJ|KT|QJ)/,
+            'HJ': /^(AA|KK|QQ|JJ|TT|99|88|77|66|55|AK|AQ|AJ|AT|A9|A8|A7|A6|A5|KQ|KJ|KT|K9|QJ|QT|JT)/,
+            'CO': /^(AA|KK|QQ|JJ|TT|99|88|77|66|55|44|33|22|A[2-9]|AQ|AK|K[2-9]|Q[4-9]|J[5-9]|T[6-9]|98|87|76)/,
+            'BTN': /.*/, // BTN范围极宽，几乎任意两张
+            'SB': /^(AA|KK|QQ|JJ|TT|99|88|77|AK|AQ|AJ|AT|A9|A8|KQ|KJ|KT|QJ|QT|JT)/
+        };
+        
+        if (!gtoRanges[position]) return true;
+        return gtoRanges[position].test(handName);
+    },
         const amount = hand.amount || 0;
         const position = hand.position || '';
         const cards = hand.cards || [];
