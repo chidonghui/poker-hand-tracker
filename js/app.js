@@ -663,6 +663,21 @@ const app = {
         const hand = this.data.hands.find(h => h.id === this.editingHandId);
         if (!hand) return;
 
+        // 校验公共牌是否有重复
+        const slots = ['flop-1', 'flop-2', 'flop-3', 'turn-card', 'river-card'];
+        const seenCards = new Set();
+        
+        for (const slotId of slots) {
+            const input = document.getElementById(slotId);
+            if (input && input.value) {
+                if (seenCards.has(input.value)) {
+                    this.showToast('❌ 公共牌有重复：' + input.value, 2000);
+                    return;
+                }
+                seenCards.add(input.value);
+            }
+        }
+
         // 保存位置
         const activePos = document.querySelector('.pos-btn.active');
         if (activePos) hand.position = activePos.dataset.pos;
@@ -785,6 +800,9 @@ const app = {
         document.getElementById('editor-close')?.addEventListener('click', () => this.closeEditor());
         document.getElementById('btn-cancel-edit')?.addEventListener('click', () => this.closeEditor());
         document.getElementById('btn-save-edit')?.addEventListener('click', () => this.saveEditor());
+        document.getElementById('btn-ai-review')?.addEventListener('click', () => this.showAIReview());
+        document.getElementById('ai-modal-close')?.addEventListener('click', () => this.hideAIReview());
+        document.getElementById('ai-modal-mask')?.addEventListener('click', () => this.hideAIReview());
 
         // 位置按钮
         document.querySelectorAll('.pos-btn').forEach(btn => {
@@ -852,9 +870,25 @@ const app = {
     },
 
     selectCardSuit(suit) {
-        if (this.currentCardSlot && this.tempRank) {
-            this.updateCardSlot(this.currentCardSlot, this.tempRank, suit);
+        if (!this.currentCardSlot || !this.tempRank) return;
+        
+        // 检查是否重复选择相同的牌
+        const newCard = this.tempRank + suit;
+        const slots = ['flop-1', 'flop-2', 'flop-3', 'turn-card', 'river-card'];
+        
+        for (const slotId of slots) {
+            if (slotId === this.currentCardSlot) continue; // 跳过当前slot
+            
+            const input = document.getElementById(slotId);
+            if (input && input.value === newCard) {
+                this.showToast('❌ 不能重复选择：' + this.tempRank + {S: '♠', H: '♥', D: '♦', C: '♣'}[suit], 2000);
+                this.closeCardPicker();
+                this.tempRank = null;
+                return;
+            }
         }
+        
+        this.updateCardSlot(this.currentCardSlot, this.tempRank, suit);
         this.closeCardPicker();
         this.tempRank = null;
     },
@@ -897,6 +931,140 @@ const app = {
         if (overlay) overlay.style.display = 'none';
         this.currentCardSlot = null;
         this.tempRank = null;
+    },
+
+    // ========== AI复盘功能 ==========
+    showAIReview() {
+        const modal = document.getElementById('ai-modal');
+        const loading = document.getElementById('ai-loading');
+        const result = document.getElementById('ai-result');
+        
+        modal.style.display = 'flex';
+        loading.style.display = 'flex';
+        result.style.display = 'none';
+        
+        // 模拟AI分析延迟
+        setTimeout(() => {
+            const analysis = this.generateAIAnalysis();
+            result.innerHTML = analysis;
+            loading.style.display = 'none';
+            result.style.display = 'block';
+        }, 1500);
+    },
+    
+    hideAIReview() {
+        const modal = document.getElementById('ai-modal');
+        modal.style.display = 'none';
+    },
+    
+    generateAIAnalysis() {
+        // 获取当前编辑的手牌信息
+        const hand = this.data.hands.find(h => h.id === this.editingHandId);
+        if (!hand) return '<p>暂无手牌信息</p>';
+        
+        const amount = hand.amount || 0;
+        const position = hand.position || '';
+        const cards = hand.cards || [];
+        
+        // 计算基础评分
+        let score = 5;
+        let scoreClass = 'medium';
+        let scoreLabel = '标准';
+        
+        if (amount > 0) {
+            score = Math.min(7 + Math.floor(amount / 10000), 10);
+            scoreLabel = '盈利';
+        } else if (amount < 0) {
+            score = Math.max(3 - Math.floor(Math.abs(amount) / 10000), 1);
+            scoreClass = 'poor';
+            scoreLabel = '亏损';
+        } else {
+            scoreClass = 'medium';
+        }
+        
+        // 判断手牌类型
+        const isPocketPair = cards.length === 2 && cards[0].rank === cards[1].rank;
+        const isSuited = cards.length === 2 && cards[0].suit === cards[1].suit;
+        
+        // 生成HTML
+        let html = '';
+        
+        // 手牌信息
+        html += `<div class="ai-hand-info">`;
+        html += `<div class="ai-hand-cards">`;
+        cards.forEach(card => {
+            const isRed = card.suit === 'H' || card.suit === 'D';
+            const suitSymbol = {S: '♠', H: '♥', D: '♦', C: '♣'}[card.suit];
+            html += `<div class="ai-mini-card ${isRed ? 'red' : 'black'}">${card.rank}${suitSymbol}</div>`;
+        });
+        html += `</div>`;
+        html += `<div><div class="ai-hand-name">${hand.handName}</div>`;
+        if (position) html += `<span style="color:var(--primary);font-size:12px;">${position}</span>`;
+        html += `</div></div>`;
+        
+        // GTO评分
+        html += `<div class="ai-score">`;
+        html += `<div class="ai-score-value ${scoreClass}">${score}/10</div>`;
+        html += `<div class="ai-score-label">${scoreLabel}</div>`;
+        html += `</div>`;
+        
+        // 分析建议
+        html += `<h3>💡 关键建议</h3>`;
+        
+        // 位置分析
+        if (position) {
+            const earlyPositions = ['UTG', 'UTG+1', 'UTG+2', 'MP'];
+            const latePositions = ['CO', 'BTN'];
+            
+            if (earlyPositions.includes(position) && !isPocketPair) {
+                const rankValues = {'A': 14, 'K': 13, 'Q': 12, 'J': 11, 'T': 10};
+                const highCard = rankValues[cards[0].rank] || parseInt(cards[0].rank);
+                if (highCard < 12) {
+                    html += `<div class="ai-suggestion">`;
+                    html += `<span class="ai-suggestion-label warning">位置</span>`;
+                    html += `<div class="ai-suggestion-text">前位入池手牌偏弱，建议收紧范围到88+/AQs+/AK</div>`;
+                    html += `</div>`;
+                }
+            }
+            
+            if (latePositions.includes(position)) {
+                html += `<div class="ai-suggestion">`;
+                html += `<span class="ai-suggestion-label info">位置</span>`;
+                html += `<div class="ai-suggestion-text">后位有位置优势，可以更激进地3B隔离</div>`;
+                html += `</div>`;
+            }
+        }
+        
+        // 手牌类型分析
+        if (isPocketPair) {
+            html += `<div class="ai-suggestion">`;
+            html += `<span class="ai-suggestion-label strategy">策略</span>`;
+            html += `<div class="ai-suggestion-text">对子在手，注意翻后set mining价值</div>`;
+            html += `</div>`;
+        }
+        
+        if (isSuited) {
+            html += `<div class="ai-suggestion">`;
+            html += `<span class="ai-suggestion-label opportunity">机会</span>`;
+            html += `<div class="ai-suggestion-text">同花结构牌，有翻后成花潜力</div>`;
+            html += `</div>`;
+        }
+        
+        // 结果分析
+        if (amount > 30000) {
+            html += `<div class="ai-suggestion">`;
+            html += `<span class="ai-suggestion-label opportunity">大胜</span>`;
+            html += `<div class="ai-suggestion-text">这手牌盈利显著！回顾关键决策，总结可复制的手感</div>`;
+            html += `</div>`;
+        } else if (amount < -20000) {
+            html += `<h3>⚠️ 潜在错误</h3>`;
+            html += `<div class="ai-error">`;
+            html += `<div class="ai-error-street">总结</div>`;
+            html += `<div class="ai-error-text">大额亏损手牌，建议详细记录心路历程，检查是否存在Tilt、位置劣势或范围错误</div>`;
+            html += `</div>`;
+        }
+        
+        return html;
     }
 };
 

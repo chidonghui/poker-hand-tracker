@@ -1056,3 +1056,241 @@ body {
     background: var(--primary);
     color: white;
 }
+
+/* ========== AI复盘按钮 ========== */
+.btn-ai-review {
+    padding: 14px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 0 10px;
+}
+
+.btn-ai-review:active {
+    opacity: 0.9;
+}
+
+/* ========== AI复盘弹窗 ========== */
+.ai-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ai-modal-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.ai-modal-content {
+    position: relative;
+    width: 90%;
+    max-height: 80%;
+    background: var(--panel);
+    border-radius: 16px;
+    overflow: hidden;
+    z-index: 1001;
+}
+
+.ai-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.ai-modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+}
+
+.ai-modal-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+.ai-modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.ai-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+}
+
+.ai-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--key);
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.ai-result h3 {
+    font-size: 16px;
+    color: var(--text);
+    margin: 20px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--key);
+}
+
+.ai-result h3:first-child {
+    margin-top: 0;
+}
+
+.ai-score {
+    text-align: center;
+    padding: 20px;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+.ai-score-value {
+    font-size: 48px;
+    font-weight: 800;
+    color: #4ade80;
+}
+
+.ai-score-value.medium {
+    color: #fbbf24;
+}
+
+.ai-score-value.poor {
+    color: #f87171;
+}
+
+.ai-score-label {
+    font-size: 14px;
+    color: var(--text-dim);
+    margin-top: 4px;
+}
+
+.ai-suggestion {
+    padding: 12px;
+    background: var(--key);
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.ai-suggestion-label {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.ai-suggestion-label.info {
+    background: #3b82f6;
+}
+
+.ai-suggestion-label.warning {
+    background: #f59e0b;
+}
+
+.ai-suggestion-label.strategy {
+    background: #8b5cf6;
+}
+
+.ai-suggestion-label.opportunity {
+    background: #10b981;
+}
+
+.ai-suggestion-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+}
+
+.ai-error {
+    padding: 12px;
+    background: rgba(248, 113, 113, 0.1);
+    border-left: 3px solid #f87171;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.ai-error-street {
+    font-size: 12px;
+    font-weight: 600;
+    color: #f87171;
+    margin-bottom: 4px;
+}
+
+.ai-error-text {
+    font-size: 13px;
+    color: var(--text);
+}
+
+.ai-hand-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--key);
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.ai-hand-cards {
+    display: flex;
+    gap: 8px;
+}
+
+.ai-mini-card {
+    width: 40px;
+    height: 56px;
+    background: white;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.ai-mini-card.red {
+    color: #e53935;
+}
+
+.ai-mini-card.black {
+    color: #212121;
+}
+
+.ai-hand-name {
+    font-size: 20px;
+    font-weight: 700;
+}

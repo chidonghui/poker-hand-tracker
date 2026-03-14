@@ -242,7 +242,28 @@
             
             <div class="editor-footer">
                 <button class="btn-cancel" id="btn-cancel-edit">取消</button>
+                <button class="btn-ai-review" id="btn-ai-review">🤖 AI复盘</button>
                 <button class="btn-save-editor" id="btn-save-edit">保存</button>
+            </div>
+        </div>
+        
+        <!-- AI复盘弹窗 -->
+        <div class="ai-modal" id="ai-modal" style="display: none;">
+            <div class="ai-modal-mask" id="ai-modal-mask"></div>
+            <div class="ai-modal-content">
+                <div class="ai-modal-header">
+                    <span class="ai-modal-title">🤖 AI GTO分析</span>
+                    <button class="ai-modal-close" id="ai-modal-close">✕</button>
+                </div>
+                <div class="ai-modal-body" id="ai-modal-body">
+                    <div class="ai-loading" id="ai-loading">
+                        <div class="ai-spinner"></div>
+                        <p>AI分析中...</p>
+                    </div>
+                    <div class="ai-result" id="ai-result" style="display: none;">
+                        <!-- 动态生成内容 -->
+                    </div>
+                </div>
             </div>
         </div>
         
