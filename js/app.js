@@ -801,6 +801,8 @@ const app = {
         // 编辑器事件
         document.getElementById('editor-close')?.addEventListener('click', () => this.closeEditor());
         document.getElementById('btn-save-edit')?.addEventListener('click', () => this.saveEditor());
+        document.getElementById('ai-modal-close')?.addEventListener('click', () => this.hideAIReview());
+        document.getElementById('ai-modal-mask')?.addEventListener('click', () => this.hideAIReview());
 
         // 位置按钮
         document.querySelectorAll('.pos-btn').forEach(btn => {
