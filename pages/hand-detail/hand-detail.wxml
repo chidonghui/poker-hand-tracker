@@ -135,7 +135,79 @@
   <button class="save-btn" bindtap="saveReview"
 >保存复盘</button>
 
+  <!-- AI复盘按钮 -->
+  <button class="ai-review-btn" bindtap="showAIReview"
+>🤖 AI复盘</button>
+
   <!-- 删除按钮 -->
   <button class="delete-btn" bindtap="deleteHand"
 >删除手牌</button>
+
+  <!-- AI复盘弹窗 -->
+  <view class="ai-modal {{showAIModal ? 'show' : ''}}" wx:if="{{showAIModal}}">
+    <view class="ai-modal-mask" bindtap="hideAIReview"></view>
+    <view class="ai-modal-content">
+      <view class="ai-modal-header">
+        <text class="ai-modal-title">🤖 AI GTO分析</text>
+        <text class="ai-modal-close" bindtap="hideAIReview">✕</text>
+      </view>
+      
+      <scroll-view class="ai-modal-body" scroll-y>
+        <!-- 手牌信息摘要 -->
+        <view class="ai-hand-summary">
+          <view class="ai-hand-cards">
+            <view class="ai-card {{card.suit === 'H' || card.suit === 'D' ? 'red' : 'black'}}" 
+                  wx:for="{{hand.cards}}" wx:for-item="card" wx:key="index">
+              <text>{{card.rank}}</text>
+              <text class="suit-{{card.suitName}}"></text>
+            </view>
+          </view>
+          <view class="ai-hand-info">
+            <text class="ai-hand-name">{{hand.handName}}</text>
+            <text class="ai-position" wx:if="{{hand.position}}">{{hand.position}}</text>
+          </view>
+        </view>
+        
+        <!-- GTO评分 -->
+        <view class="ai-score-section" wx:if="{{aiAnalysis.score}}">
+          <view class="ai-score-title">GTO评分</view>
+          <view class="ai-score-value {{aiAnalysis.score >= 8 ? 'good' : aiAnalysis.score >= 5 ? 'medium' : 'poor'}}">
+            {{aiAnalysis.score}}/10
+          </view>
+          <view class="ai-score-label">{{aiAnalysis.scoreLabel}}</view>
+        </view>
+        
+        <!-- 分析建议 -->
+        <view class="ai-analysis-section" wx:if="{{aiAnalysis.suggestions.length > 0}}">
+          <view class="ai-section-title">💡 关键建议</view>
+          <view class="ai-suggestion-item" wx:for="{{aiAnalysis.suggestions}}" wx:key="index">
+            <view class="ai-suggestion-type {{item.type}}">{{item.typeText}}</view>
+            <view class="ai-suggestion-text">{{item.text}}</view>
+          </view>
+        </view>
+        
+        <!-- 错误提示 -->
+        <view class="ai-errors-section" wx:if="{{aiAnalysis.errors.length > 0}}">
+          <view class="ai-section-title">⚠️ 潜在错误</view>
+          <view class="ai-error-item" wx:for="{{aiAnalysis.errors}}" wx:key="index">
+            <view class="ai-error-street">{{item.street}}</view>
+            <view class="ai-error-text">{{item.text}}</view>
+            <view class="ai-error-suggestion">{{item.suggestion}}</view>
+          </view>
+        </view>
+        
+        <!-- 范围分析 -->
+        <view class="ai-range-section" wx:if="{{aiAnalysis.rangeAnalysis}}">
+          <view class="ai-section-title">📊 范围分析</view>
+          <view class="ai-range-text">{{aiAnalysis.rangeAnalysis}}</view>
+        </view>
+        
+        <!-- 加载状态 -->
+        <view class="ai-loading" wx:if="{{aiLoading}}">
+          <view class="ai-loading-spinner"></view>
+          <text>AI分析中...</text>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
 </view>
