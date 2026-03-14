@@ -101,11 +101,12 @@ Page({
 
   // 解析 Flop (3张牌)，带重复校验
   parseFlop(input) {
-    if (!input || input.length < 6) return []
+    if (!input || input.length < 2) return { cards: [], validLength: 0 }
     
     const cards = []
-    const seen = new Set() // 用于检测重复
+    const seen = new Set()
     const cleanInput = input.replace(/\s/g, '').toLowerCase()
+    let validLength = 0 // 记录有效输入长度（遇到重复时停止）
     
     for (let i = 0; i < cleanInput.length && cards.length < 3; i += 2) {
       const cardStr = cleanInput.substr(i, 2)
@@ -115,18 +116,19 @@ Page({
         // 检查是否重复
         if (seen.has(cardKey)) {
           wx.showToast({
-            title: `重复：${card.rank}${this.getSuitSymbol(card.suit)}`,
+            title: `不能重复：${card.rank}${this.getSuitSymbol(card.suit)}`,
             icon: 'none',
             duration: 2000
           })
-          return cards // 返回已解析的不重复牌
+          return { cards, validLength }
         }
         seen.add(cardKey)
         cards.push(card)
+        validLength = i + 2
       }
     }
     
-    return cards
+    return { cards, validLength }
   },
   
   // 获取花色符号
@@ -137,10 +139,22 @@ Page({
 
   onFlopInput(e) {
     const value = e.detail.value
-    const parsed = this.parseFlop(value)
+    const result = this.parseFlop(value)
+    
+    // 如果检测到重复，截断输入框内容
+    if (result.validLength > 0 && result.validLength < value.replace(/\s/g, '').length) {
+      const cleanValue = value.replace(/\s/g, '')
+      const truncatedValue = cleanValue.substr(0, result.validLength)
+      this.setData({
+        flopInput: truncatedValue,
+        parsedFlop: result.cards
+      })
+      return
+    }
+    
     this.setData({
       flopInput: value,
-      parsedFlop: parsed
+      parsedFlop: result.cards
     })
   },
 
@@ -265,6 +279,28 @@ Page({
 
   saveReview() {
     const { handId, hand, evInput, evSign, parsedFlop, parsedTurn, parsedRiver } = this.data
+    
+    // 校验公共牌是否有重复
+    const allCommunityCards = []
+    if (parsedFlop && parsedFlop.length > 0) {
+      parsedFlop.forEach(c => allCommunityCards.push(c.rank + c.suit))
+    }
+    if (parsedTurn && parsedTurn.rank) {
+      allCommunityCards.push(parsedTurn.rank + parsedTurn.suit)
+    }
+    if (parsedRiver && parsedRiver.rank) {
+      allCommunityCards.push(parsedRiver.rank + parsedRiver.suit)
+    }
+    
+    const uniqueCards = new Set(allCommunityCards)
+    if (uniqueCards.size !== allCommunityCards.length) {
+      wx.showToast({
+        title: '公共牌有重复，请检查',
+        icon: 'none',
+        duration: 2000
+      })
+      return
+    }
     
     // 计算 EV
     let ev = null
