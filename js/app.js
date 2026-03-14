@@ -535,7 +535,6 @@ const app = {
                         <div class="hand-cards-small">${cardsHtml}</div>
                         <div class="hand-info">
                             <div class="hand-line1">
-                                <span class="hand-name">${h.handName}</span>
                                 <span class="hand-time">${time}</span>
                             </div>
                             <div class="hand-line2">
